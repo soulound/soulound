@@ -1,0 +1,2164 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<title>Soulound — 想いを、音楽に。</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Noto+Sans+JP:wght@300;400&family=Montserrat:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --gold: #c9a84c;
+    --gold-light: #e8c96a;
+    --white: #f0ede8;
+    --white-dim: rgba(240,237,232,0.5);
+    --white-faint: rgba(240,237,232,0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { background: #0a0a0a !important; color-scheme: dark; }
+
+  body {
+    background-color: #0a0a0a !important;
+    color: var(--white);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* グラデーション光演出 */
+  #glowTL, #glowBR {
+    position: fixed;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0;
+    transition: opacity 1.8s ease, background 1.8s ease;
+    filter: blur(80px);
+  }
+  #glowTL { top: -150px; left: -150px; }
+  #glowBR { bottom: -150px; right: -150px; }
+
+  /* ノイズ */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    opacity: 0.3;
+    pointer-events: none;
+    z-index: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* Header */
+  header { padding: 48px 0 0; text-align: center; }
+
+  .logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(2rem, 6vw, 3rem);
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: opacity 0.3s;
+    display: inline-block;
+  }
+  .logo:hover { opacity: 0.75; }
+
+  .logo-sub {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 200;
+    font-size: 0.65rem;
+    letter-spacing: 0.4em;
+    color: var(--white-dim);
+    text-transform: uppercase;
+  }
+
+  .gold-line { width: 40px; height: 1px; background: var(--gold); margin: 32px auto; opacity: 0.6; }
+
+  /* Hero */
+  .hero { text-align: center; padding: 48px 0 64px; }
+
+  .hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(1.8rem, 5vw, 2.6rem);
+    line-height: 1.5;
+    letter-spacing: 0.05em;
+    margin-bottom: 24px;
+  }
+  .hero-title em { color: var(--gold); font-style: normal; }
+
+  .hero-desc {
+    font-size: 0.8rem;
+    line-height: 2;
+    color: var(--white-dim);
+    letter-spacing: 0.08em;
+    max-width: 480px;
+    margin: 0 auto 40px;
+  }
+
+  .start-btn {
+    display: inline-block;
+    padding: 16px 48px;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    cursor: pointer;
+    background: transparent;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+    -webkit-appearance: none;
+  }
+  .start-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--gold);
+    transform: translateX(-100%);
+    transition: transform 0.4s ease;
+    z-index: -1;
+  }
+  .start-btn:hover { color: #0a0a0a; }
+  .start-btn:hover::before { transform: translateX(0); }
+
+  /* Diagnostic */
+  .diagnostic { display: none; padding: 32px 0 80px; }
+  .diagnostic.active { display: block; }
+
+  .progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .progress-bar { flex: 1; height: 1px; background: var(--white-faint); position: relative; }
+  .progress-fill {
+    position: absolute;
+    left: 0; top: 0;
+    height: 100%;
+    background: var(--gold);
+    transition: width 0.6s ease;
+  }
+  .progress-text {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--white-dim);
+    white-space: nowrap;
+  }
+
+  /* 戻るボタン */
+  .back-btn {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    color: var(--white-dim);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+    margin-bottom: 28px;
+    padding: 8px 0;
+    transition: color 0.3s;
+    -webkit-appearance: none;
+  }
+  .back-btn.visible { display: flex; }
+  .back-btn:hover { color: var(--gold); }
+  .back-btn::before { content: '←'; font-size: 0.9rem; }
+
+  /* Question */
+  .question-wrap { display: none; }
+  .question-wrap.active {
+    display: block;
+    animation: fadeUp 0.5s ease forwards;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .question-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+
+  .question-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 400;
+    font-size: clamp(1.2rem, 3.5vw, 1.7rem);
+    line-height: 1.6;
+    letter-spacing: 0.05em;
+    margin-bottom: 28px;
+  }
+
+  .options { display: flex; flex-direction: column; gap: 10px; }
+
+  .option {
+    padding: 18px 20px;
+    border: 1px solid rgba(201,168,76,0.2);
+    background: var(--white-faint);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .option::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 2px;
+    background: var(--gold);
+    transform: scaleY(0);
+    transition: transform 0.3s ease;
+  }
+  .option:hover, .option:active {
+    border-color: rgba(201,168,76,0.5);
+    background: rgba(201,168,76,0.06);
+    padding-left: 28px;
+  }
+  .option:hover::before, .option:active::before { transform: scaleY(1); }
+
+  .option-text { font-size: 0.85rem; letter-spacing: 0.06em; line-height: 1.5; color: var(--white); }
+  .option-sub { font-size: 0.7rem; color: var(--white-dim); margin-top: 4px; letter-spacing: 0.04em; }
+
+  /* Result */
+  .result-wrap { display: none; padding: 48px 0 80px; }
+  .result-wrap.active { display: block; animation: fadeUp 0.8s ease forwards; }
+
+  .result-label {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.4em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+
+  .result-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(1.6rem, 4vw, 2.2rem);
+    line-height: 1.5;
+    margin-bottom: 32px;
+  }
+  .result-title em {
+    color: var(--gold);
+    font-style: normal;
+    display: block;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  .result-desc {
+    font-size: 0.82rem;
+    line-height: 2.2;
+    color: var(--white-dim);
+    letter-spacing: 0.06em;
+    margin-bottom: 32px;
+    padding: 28px;
+    border-left: 1px solid rgba(201,168,76,0.3);
+    background: var(--white-faint);
+  }
+
+  .result-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 48px; }
+  .result-tag {
+    padding: 6px 14px;
+    border: 1px solid rgba(201,168,76,0.3);
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    color: var(--gold);
+  }
+
+  .cta-wrap { text-align: center; padding-top: 32px; border-top: 1px solid var(--white-faint); }
+
+  .cta-text {
+    font-size: 0.78rem;
+    color: var(--white-dim);
+    letter-spacing: 0.06em;
+    margin-bottom: 24px;
+    line-height: 2;
+  }
+
+  .cta-btn {
+    display: inline-block;
+    padding: 18px 48px;
+    background: var(--gold);
+    color: #0a0a0a;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 400;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s ease;
+    -webkit-appearance: none;
+    text-decoration: none;
+  }
+  .cta-btn:hover { background: var(--gold-light); }
+
+  .retry-btn {
+    display: block;
+    margin: 16px auto 0;
+    font-size: 0.7rem;
+    color: var(--white-dim);
+    letter-spacing: 0.15em;
+    cursor: pointer;
+    background: none;
+    border: none;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    transition: color 0.3s;
+    -webkit-appearance: none;
+  }
+  .retry-btn:hover { color: var(--gold); }
+
+  footer { text-align: center; padding: 48px 0; border-top: 1px solid var(--white-faint); }
+  .footer-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    letter-spacing: 0.4em;
+    color: var(--gold);
+    opacity: 0.5;
+  }
+
+  /* コピーポップアップ */
+  .copy-popup {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .copy-popup.active { display: flex; }
+
+  .copy-popup-inner {
+    background: #141414;
+    border: 1px solid rgba(201,168,76,0.3);
+    padding: 40px 28px;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    animation: fadeUp 0.4s ease forwards;
+  }
+
+  .copy-popup-icon { font-size: 2rem; margin-bottom: 16px; }
+
+  .copy-popup-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.3rem;
+    color: var(--gold);
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+  }
+
+  .copy-popup-desc {
+    font-size: 0.78rem;
+    color: var(--white-dim);
+    line-height: 2;
+    letter-spacing: 0.04em;
+    margin-bottom: 8px;
+  }
+
+  .copy-popup-result {
+    font-size: 0.73rem;
+    color: var(--white);
+    background: rgba(201,168,76,0.08);
+    border: 1px solid rgba(201,168,76,0.2);
+    padding: 12px 16px;
+    margin: 16px 0 24px;
+    line-height: 1.9;
+    letter-spacing: 0.03em;
+    text-align: left;
+    white-space: pre-line;
+  }
+
+  .copy-popup-btn {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background: var(--gold);
+    color: #0a0a0a;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 400;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    transition: background 0.3s;
+    -webkit-appearance: none;
+    text-align: center;
+  }
+  .copy-popup-btn:hover { background: var(--gold-light); }
+
+  .copy-popup-close {
+    display: block;
+    margin-top: 16px;
+    font-size: 0.7rem;
+    color: var(--white-dim);
+    cursor: pointer;
+    background: none;
+    border: none;
+    letter-spacing: 0.1em;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    -webkit-appearance: none;
+  }
+
+  /* 読み込み画面 */
+  .loading-screen {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: #0a0a0a;
+    z-index: 50;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 48px 32px;
+  }
+  .loading-screen.active { display: flex; }
+
+  .loading-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: 1.4rem;
+    letter-spacing: 0.4em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 48px;
+    opacity: 0.7;
+  }
+
+  .loading-label {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.35em;
+    color: var(--white-dim);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .loading-bar-wrap {
+    width: 100%;
+    max-width: 320px;
+    height: 1px;
+    background: rgba(240,237,232,0.1);
+    position: relative;
+    margin-bottom: 16px;
+  }
+
+  .loading-bar-fill {
+    position: absolute;
+    left: 0; top: 0;
+    height: 100%;
+    background: var(--gold);
+    width: 0%;
+    transition: width 0.15s ease;
+    box-shadow: 0 0 8px rgba(201,168,76,0.6);
+  }
+
+  .loading-pct {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 200;
+    letter-spacing: 0.1em;
+    color: var(--gold);
+    min-width: 5ch;
+    text-align: center;
+  }
+
+  .loading-msg {
+    font-size: 0.72rem;
+    color: var(--white-dim);
+    letter-spacing: 0.1em;
+    margin-top: 32px;
+    min-height: 1.4em;
+    transition: opacity 0.4s ease;
+  }
+  /* ===== LP ===== */
+
+  /* Opening */
+  .lp-opening {
+    position: relative;
+    height: 100vh;
+    min-height: 600px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    margin: 0 -24px;
+  }
+
+  #waveCanvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.35;
+  }
+
+  .lp-opening-inner {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 0 24px;
+  }
+
+  .lp-opening-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(3rem, 12vw, 7rem);
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    text-transform: uppercase;
+    opacity: 0;
+    transform: scale(0.95);
+    transition: opacity 2s ease, transform 2s ease;
+  }
+  .lp-opening-logo.visible { opacity: 1; transform: scale(1); }
+
+  .lp-opening-sub {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 200;
+    font-size: clamp(0.55rem, 1.8vw, 0.75rem);
+    letter-spacing: 0.4em;
+    color: var(--white-dim);
+    text-transform: uppercase;
+    margin-top: 12px;
+    opacity: 0;
+    transition: opacity 2s ease 0.8s;
+  }
+  .lp-opening-sub.visible { opacity: 1; }
+
+  .lp-opening-scroll {
+    position: absolute;
+    bottom: -40vh;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    color: var(--white-dim);
+    opacity: 0;
+    animation: scrollBounce 2s ease 2s infinite;
+  }
+  .lp-opening-scroll.visible { opacity: 0.6; }
+
+  @keyframes scrollBounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.6; }
+    50% { transform: translateX(-50%) translateY(6px); opacity: 0.3; }
+  }
+
+  /* キャッチコピー */
+  .lp-catch {
+    padding: 100px 0 80px;
+    text-align: center;
+  }
+
+  .lp-catch-main {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(1.8rem, 5vw, 3rem);
+    line-height: 1.6;
+    letter-spacing: 0.05em;
+    margin-bottom: 32px;
+  }
+  .lp-catch-main em { color: var(--gold); font-style: normal; }
+
+  .lp-catch-sub {
+    font-size: 0.8rem;
+    line-height: 2.2;
+    color: var(--white-dim);
+    letter-spacing: 0.08em;
+  }
+
+  /* セクション共通 */
+  .lp-section { padding: 80px 0; }
+
+  .lp-section-label {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.5em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    opacity: 0.7;
+  }
+
+  .lp-section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(1.5rem, 4vw, 2.2rem);
+    letter-spacing: 0.05em;
+    margin-bottom: 48px;
+    line-height: 1.4;
+  }
+  .lp-section-title em { color: var(--gold); font-style: normal; }
+
+  /* 場面 */
+  .lp-scenes {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 12px;
+    width: 100%;
+  }
+
+  .lp-scene {
+    padding: 20px 16px;
+    border: 1px solid rgba(201,168,76,0.15);
+    background: rgba(255,255,255,0.03);
+    transition: border-color 0.3s, background 0.3s;
+    min-width: 0;
+  }
+  .lp-scene:hover {
+    border-color: rgba(201,168,76,0.4);
+    background: rgba(201,168,76,0.05);
+  }
+
+  .lp-scene-icon { font-size: 1.5rem; margin-bottom: 10px; }
+
+  .lp-scene-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.95rem;
+    letter-spacing: 0.05em;
+    color: var(--white);
+    margin-bottom: 8px;
+  }
+
+  .lp-scene-desc {
+    font-size: 0.68rem;
+    color: var(--white-dim);
+    line-height: 1.7;
+    letter-spacing: 0.03em;
+  }
+
+  /* 曲の種類 */
+  .lp-sounds { display: flex; flex-direction: column; gap: 0; }
+
+  .lp-sound {
+    padding: 28px 0;
+    border-bottom: 1px solid var(--white-faint);
+    position: relative;
+  }
+
+  .lp-sound-bar {
+    height: 2px;
+    background: var(--gold);
+    width: 0%;
+    margin-bottom: 16px;
+    transition: width 1.2s ease;
+    opacity: 0.6;
+  }
+
+  .lp-sound-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1rem, 3vw, 1.3rem);
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+  }
+
+  .lp-sound-desc {
+    font-size: 0.72rem;
+    color: var(--white-dim);
+    letter-spacing: 0.06em;
+    margin-bottom: 10px;
+  }
+
+  .lp-sound-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .lp-sound-tags span {
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    color: var(--gold);
+    border: 1px solid rgba(201,168,76,0.25);
+    padding: 3px 10px;
+  }
+
+  /* 選ばれる理由 */
+  .lp-reasons { display: flex; flex-direction: column; gap: 32px; }
+
+  .lp-reason { padding-left: 24px; border-left: 1px solid rgba(201,168,76,0.3); }
+
+  .lp-reason-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+
+  .lp-reason-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.05em;
+    margin-bottom: 10px;
+  }
+
+  .lp-reason-desc {
+    font-size: 0.78rem;
+    color: var(--white-dim);
+    line-height: 2;
+    letter-spacing: 0.05em;
+  }
+
+  /* 診断CTA */
+  .lp-cta { padding: 80px 0 60px; text-align: center; }
+
+  .lp-cta-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    line-height: 1.6;
+    letter-spacing: 0.05em;
+    margin-bottom: 24px;
+  }
+  .lp-cta-title em { color: var(--gold); font-style: normal; }
+
+  .lp-cta-desc {
+    font-size: 0.78rem;
+    color: var(--white-dim);
+    line-height: 2.2;
+    letter-spacing: 0.06em;
+    margin-bottom: 40px;
+  }
+
+  /* スクロール出現 */
+  .lp-reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease, transform 0.8s ease; }
+  .lp-reveal.visible { opacity: 1; transform: translateY(0); }
+  .lp-reveal-item { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .lp-reveal-item.visible { opacity: 1; transform: translateY(0); }
+
+  /* ヘッダー（LP表示中は固定） */
+  #mainHeader {
+    padding: 48px 0 0;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* セクション背景色変化 */
+  #lp { overflow: visible; }
+
+  body { transition: background-color 2s ease; }
+  body.bg-scene  { background-color: #080d16 !important; }
+  body.bg-sound  { background-color: #110908 !important; }
+  body.bg-why    { background-color: #080e0a !important; }
+  body.bg-price  { background-color: #0e0810 !important; }
+  body.bg-cta    { background-color: #0a0a0a !important; }
+
+  /* 料金セクション */
+  .lp-price { padding: 80px 0; }
+
+  .lp-price-inner {
+    border: 1px solid rgba(201,168,76,0.2);
+    padding: 40px 28px;
+    background: rgba(201,168,76,0.03);
+    text-align: center;
+  }
+
+  .lp-price-label {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.5em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    opacity: 0.7;
+  }
+
+  .lp-price-tag {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(2rem, 8vw, 3.5rem);
+    color: var(--gold);
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+
+  .lp-price-tag span {
+    font-size: 0.5em;
+    letter-spacing: 0.1em;
+    opacity: 0.8;
+  }
+
+  .lp-price-note {
+    font-size: 0.72rem;
+    color: var(--white-dim);
+    letter-spacing: 0.06em;
+    margin-bottom: 28px;
+    line-height: 1.8;
+  }
+
+  .lp-price-badge {
+    display: inline-block;
+    padding: 6px 20px;
+    border: 1px solid var(--gold);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+
+  .lp-price-list {
+    list-style: none;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .lp-price-list li {
+    font-size: 0.78rem;
+    color: var(--white-dim);
+    letter-spacing: 0.05em;
+    padding-left: 20px;
+    position: relative;
+    line-height: 1.6;
+  }
+
+  .lp-price-list li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--gold);
+    font-size: 0.7rem;
+  }
+
+  .lp-price-cta {
+    font-size: 0.7rem;
+    color: var(--white-dim);
+    letter-spacing: 0.06em;
+    line-height: 1.8;
+  }
+
+  .lp-price-cta em {
+    color: var(--gold);
+    font-style: normal;
+  }
+
+  /* 会社情報入力フォーム */
+  .reg-form { display: flex; flex-direction: column; gap: 24px; }
+  .reg-field { display: flex; flex-direction: column; gap: 8px; }
+
+  .reg-label {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--white-dim);
+    text-transform: uppercase;
+  }
+
+  .reg-required {
+    font-size: 0.55rem;
+    color: var(--gold);
+    letter-spacing: 0.1em;
+    margin-left: 6px;
+  }
+
+  .reg-input {
+    background: var(--white-faint);
+    border: 1px solid rgba(201,168,76,0.2);
+    color: var(--white);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 0.9rem;
+    padding: 14px 16px;
+    outline: none;
+    transition: border-color 0.3s;
+    -webkit-appearance: none;
+    border-radius: 0;
+    width: 100%;
+  }
+  .reg-input:focus { border-color: rgba(201,168,76,0.6); }
+  .reg-input::placeholder { color: rgba(240,237,232,0.2); font-size: 0.8rem; }
+
+  .reg-select-wrap { position: relative; }
+  .reg-select-wrap::after {
+    content: '↓';
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--gold);
+    font-size: 0.8rem;
+    pointer-events: none;
+  }
+
+  .reg-select {
+    background: var(--white-faint);
+    border: 1px solid rgba(201,168,76,0.2);
+    color: var(--white);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 0.9rem;
+    padding: 14px 40px 14px 16px;
+    outline: none;
+    transition: border-color 0.3s;
+    -webkit-appearance: none;
+    border-radius: 0;
+    width: 100%;
+    cursor: pointer;
+  }
+  .reg-select:focus { border-color: rgba(201,168,76,0.6); }
+  .reg-select option { background: #1a1a1a; color: var(--white); }
+
+  .reg-error {
+    display: none;
+    font-size: 0.72rem;
+    color: #e07070;
+    letter-spacing: 0.06em;
+  }
+  .reg-error.visible { display: block; }
+
+  .reg-btn {
+    margin-top: 8px;
+    padding: 18px;
+    background: var(--gold);
+    color: #0a0a0a;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 400;
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+    border: none;
+    transition: background 0.3s;
+    -webkit-appearance: none;
+    width: 100%;
+  }
+  .reg-btn:hover { background: var(--gold-light); }
+
+  .reg-note {
+    font-size: 0.65rem;
+    color: var(--white-dim);
+    letter-spacing: 0.06em;
+    text-align: center;
+    opacity: 0.6;
+  }
+
+</style>
+</head>
+<body>
+
+<!-- グラデーション光 -->
+<div id="glowTL"></div>
+<div id="glowBR"></div>
+
+<div class="container">
+  <header id="mainHeader">
+    <div class="logo" onclick="goHome()">Soulound</div>
+    <div class="logo-sub">Music Production for Your Story</div>
+  </header>
+
+  <!-- ===== LP ===== -->
+  <div id="lp">
+
+    <!-- Opening -->
+    <section class="lp-opening" id="lpOpening">
+      <canvas id="waveCanvas"></canvas>
+      <div class="lp-opening-inner">
+        <div class="lp-opening-logo" id="lpLogo">Soulound</div>
+        <div class="lp-opening-sub" id="lpSub">Music Production for Your Story</div>
+        <div class="lp-opening-scroll" id="lpScroll">scroll ↓</div>
+      </div>
+    </section>
+
+    <!-- Catchcopy -->
+    <section class="lp-catch lp-reveal" id="secCatch">
+      <div class="lp-catch-main">貴社の<em>想い</em>を、<br>音楽にする。</div>
+      <p class="lp-catch-sub">
+        会社には、言葉だけでは伝えきれない想いがある。<br>
+        Souloundは、その想いを丁寧にヒアリングし、<br>
+        貴社だけのオリジナル楽曲として音楽化します。
+      </p>
+      <div style="margin-top: 40px;">
+        <button class="start-btn" onclick="startDiagnostic()">無料診断をはじめる</button>
+      </div>
+    </section>
+
+    <!-- 場面 -->
+    <section class="lp-section lp-reveal" id="secScene">
+      <div class="lp-section-label">Scene</div>
+      <div class="lp-section-title">こんな場面で<em>使えます</em></div>
+      <div class="lp-scenes">
+        <div class="lp-scene lp-reveal-item">
+          <div class="lp-scene-icon">🎬</div>
+          <div class="lp-scene-name">コーポレートPV</div>
+          <div class="lp-scene-desc">会社の顔となる映像に、ブランドの世界観を音楽で表現</div>
+        </div>
+        <div class="lp-scene lp-reveal-item">
+          <div class="lp-scene-icon">👥</div>
+          <div class="lp-scene-name">採用動画</div>
+          <div class="lp-scene-desc">求める人材の心に響く、採用専用の楽曲制作</div>
+        </div>
+        <div class="lp-scene lp-reveal-item">
+          <div class="lp-scene-icon">🏆</div>
+          <div class="lp-scene-name">周年記念式典</div>
+          <div class="lp-scene-desc">歴史と感謝を音楽に込めた、特別な式典のための一曲</div>
+        </div>
+        <div class="lp-scene lp-reveal-item">
+          <div class="lp-scene-icon">🎪</div>
+          <div class="lp-scene-name">社内イベント</div>
+          <div class="lp-scene-desc">チームの一体感を高める、イベント専用サウンド</div>
+        </div>
+        <div class="lp-scene lp-reveal-item">
+          <div class="lp-scene-icon">🏢</div>
+          <div class="lp-scene-name">展示会ブース</div>
+          <div class="lp-scene-desc">ブースに足を止めさせる、印象に残るBGM</div>
+        </div>
+        <div class="lp-scene lp-reveal-item">
+          <div class="lp-scene-icon">📖</div>
+          <div class="lp-scene-name">創業ストーリー動画</div>
+          <div class="lp-scene-desc">創業の想いと歩みを、感動的な音楽で語る</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 曲の種類 -->
+    <section class="lp-section lp-reveal" id="secSound">
+      <div class="lp-section-label">Sound</div>
+      <div class="lp-section-title">こんな曲が<em>作れます</em></div>
+      <div class="lp-sounds">
+        <div class="lp-sound lp-reveal-item">
+          <div class="lp-sound-bar" id="soundBar0"></div>
+          <div class="lp-sound-name">背中を押す、前向きな一曲</div>
+          <div class="lp-sound-desc">挑戦・成長・採用動画に</div>
+          <div class="lp-sound-tags"><span>#電子音楽</span><span>#ポップ</span><span>#推進力</span></div>
+        </div>
+        <div class="lp-sound lp-reveal-item">
+          <div class="lp-sound-bar" id="soundBar1"></div>
+          <div class="lp-sound-name">寄り添う、温かい一曲</div>
+          <div class="lp-sound-desc">人・チームワーク・社内BGMに</div>
+          <div class="lp-sound-tags"><span>#ストリングス</span><span>#ピアノ</span><span>#温かい</span></div>
+        </div>
+        <div class="lp-sound lp-reveal-item">
+          <div class="lp-sound-bar" id="soundBar2"></div>
+          <div class="lp-sound-name">想いが込み上げる、感動の一曲</div>
+          <div class="lp-sound-desc">周年式典・創業ストーリーに</div>
+          <div class="lp-sound-tags"><span>#オーケストラ</span><span>#壮大</span><span>#感動</span></div>
+        </div>
+        <div class="lp-sound lp-reveal-item">
+          <div class="lp-sound-bar" id="soundBar3"></div>
+          <div class="lp-sound-name">かっこよく、印象に残る一曲</div>
+          <div class="lp-sound-desc">展示会・コーポレートPVに</div>
+          <div class="lp-sound-tags"><span>#スタイリッシュ</span><span>#シンセ</span><span>#モダン</span></div>
+        </div>
+        <div class="lp-sound lp-reveal-item">
+          <div class="lp-sound-bar" id="soundBar4"></div>
+          <div class="lp-sound-name">積み重ねてきた、重厚な一曲</div>
+          <div class="lp-sound-desc">周年記念・代表挨拶動画に</div>
+          <div class="lp-sound-tags"><span>#オーケストラ</span><span>#威厳</span><span>#重厚</span></div>
+        </div>
+        <div class="lp-sound lp-reveal-item">
+          <div class="lp-sound-bar" id="soundBar5"></div>
+          <div class="lp-sound-name">型にはまらない、個性的な一曲</div>
+          <div class="lp-sound-desc">ブランディング・展示会に</div>
+          <div class="lp-sound-tags"><span>#電子音楽</span><span>#独創的</span><span>#挑戦的</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 選ばれる理由 -->
+    <section class="lp-section lp-reveal" id="secWhy">
+      <div class="lp-section-label">Why</div>
+      <div class="lp-section-title">Souloundが<em>選ばれる理由</em></div>
+      <div class="lp-reasons">
+        <div class="lp-reason lp-reveal-item">
+          <div class="lp-reason-num">01</div>
+          <div class="lp-reason-title">深いヒアリングから始まる</div>
+          <div class="lp-reason-desc">理念・想い・使用場面を丁寧にヒアリング。「なんとなく合いそう」ではなく、貴社の本質から音楽を生み出します。</div>
+        </div>
+        <div class="lp-reason lp-reveal-item">
+          <div class="lp-reason-num">02</div>
+          <div class="lp-reason-title">完全オーダーメイド</div>
+          <div class="lp-reason-desc">フリー音源でもAI生成でもない、貴社にしか存在しない楽曲を制作。他社との差別化を音楽で実現します。</div>
+        </div>
+        <div class="lp-reason lp-reveal-item">
+          <div class="lp-reason-num">03</div>
+          <div class="lp-reason-title">修正は何度でも無料</div>
+          <div class="lp-reason-desc">納得いくまで一緒に作り上げます。「思っていたのと違う」をなくすために、ヒアリングと修正を丁寧に重ねます。</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 料金 -->
+    <section class="lp-price lp-reveal" id="secPrice">
+      <div class="lp-section-label">Price</div>
+      <div class="lp-section-title">料金について</div>
+      <div class="lp-price-inner">
+        <div class="lp-price-badge">モニター価格 受付中</div>
+        <div class="lp-price-tag"><span>¥</span>15,000<span>〜</span></div>
+        <p class="lp-price-note">通常価格に移行する前の<br>特別モニター価格でご提供中</p>
+        <ul class="lp-price-list">
+          <li>無料ヒアリング（30分・オンライン）</li>
+          <li>完全オーダーメイドの楽曲制作</li>
+          <li>修正は何度でも無料</li>
+          <li>納品形式はご要望に合わせて対応</li>
+        </ul>
+        <p class="lp-price-cta">
+          まずは無料診断で<em>イメージを確認</em>してみてください。<br>
+          その後、ヒアリングにてご相談いただけます。
+        </p>
+      </div>
+    </section>
+
+    <!-- 診断CTA -->
+    <section class="lp-cta lp-reveal" id="secCta">
+      <div class="lp-cta-inner">
+        <div class="gold-line"></div>
+        <div class="lp-cta-title">まずは、<em>診断</em>してみてください。</div>
+        <p class="lp-cta-desc">
+          いくつかの質問に答えるだけで、<br>
+          貴社に合った音楽のイメージが見えてきます。<br>
+          無料・所要時間1分。
+        </p>
+        <button class="start-btn" onclick="startDiagnostic()">無料診断をはじめる</button>
+        <div class="gold-line"></div>
+      </div>
+    </section>
+
+  </div>
+  <!-- ===== LP END ===== -->
+
+  <!-- Hero（診断開始後に使用） -->
+  <section class="hero" id="hero" style="display:none;">
+    <div class="gold-line"></div>
+    <h1 class="hero-title">貴社の<em>想い</em>を、<br>音楽にする。</h1>
+    <p class="hero-desc">
+      ヒアリングから始まる、オーダーメイドの楽曲制作。<br>
+      いくつかの質問に答えるだけで、<br>
+      あなたの会社に合った音楽のイメージが見えてきます。
+    </p>
+    <button class="start-btn" onclick="startDiagnostic()">診断をはじめる</button>
+    <div class="gold-line"></div>
+  </section>
+
+  <!-- Diagnostic -->
+  <section class="diagnostic" id="diagnostic">
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <div class="progress-text" id="progressText">0 / 4</div>
+    </div>
+    <button class="back-btn" id="backBtn" onclick="goBack()">ひとつ前に戻る</button>
+
+    <!-- 会社情報入力 -->
+    <div class="question-wrap active" id="q0">
+      <div class="question-num">まず教えてください</div>
+      <div class="question-text">業種はどちらですか？</div>
+      <div class="reg-form">
+        <div class="reg-field">
+          <div class="reg-select-wrap">
+            <select class="reg-select" id="regIndustry" onchange="selectIndustryFromDropdown(this.value)">
+              <option value="">選択してください</option>
+              <option value="建設・不動産">建設・不動産</option>
+              <option value="士業・コンサルティング">士業・コンサルティング</option>
+              <option value="飲食・小売">飲食・小売</option>
+              <option value="IT・Web">IT・Web</option>
+              <option value="製造業">製造業</option>
+              <option value="医療・福祉">医療・福祉</option>
+              <option value="美容・健康">美容・健康</option>
+              <option value="教育">教育</option>
+              <option value="金融・保険">金融・保険</option>
+              <option value="その他">その他</option>
+            </select>
+          </div>
+        </div>
+        <button class="reg-btn" onclick="submitIndustry()">診断をはじめる →</button>
+        <p class="reg-note">業種は市場調査の参考にのみ使用します</p>
+      </div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="question-wrap active" id="q1">
+      <div class="question-num">Question 01</div>
+      <div class="question-text">貴社が最も大切にしていることは？</div>
+      <div class="options">
+        <div class="option" onclick="selectQ1('trust')">
+          <div class="option-text">信頼・誠実</div>
+          <div class="option-sub">約束を守り、誠実であり続けること</div>
+        </div>
+        <div class="option" onclick="selectQ1('challenge')">
+          <div class="option-text">挑戦・成長</div>
+          <div class="option-sub">変化を恐れず、前へ進み続けること</div>
+        </div>
+        <div class="option" onclick="selectQ1('people')">
+          <div class="option-text">人・チームワーク</div>
+          <div class="option-sub">仲間を大切に、共に支え合うこと</div>
+        </div>
+        <div class="option" onclick="selectQ1('quality')">
+          <div class="option-text">品質・こだわり</div>
+          <div class="option-sub">妥協せず、本物を追求すること</div>
+        </div>
+        <div class="option" onclick="selectQ1('community')">
+          <div class="option-text">地域・社会貢献</div>
+          <div class="option-sub">地域に根ざし、社会に還元すること</div>
+        </div>
+        <div class="option" onclick="selectQ1('casual')">
+          <div class="option-text">まずは気軽に試してみたい</div>
+          <div class="option-sub">雰囲気だけ見てみる</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q2 場面 -->
+    <div class="question-wrap" id="q2">
+      <div class="question-num">Question 02</div>
+      <div class="question-text">楽曲をどの場面で使いたいですか？</div>
+      <div class="options">
+        <div class="option" onclick="selectQ2('corporatePV')"><div class="option-text">コーポレートPV</div></div>
+        <div class="option" onclick="selectQ2('recruitment')"><div class="option-text">採用動画</div></div>
+        <div class="option" onclick="selectQ2('anniversary')"><div class="option-text">周年記念式典</div></div>
+        <div class="option" onclick="selectQ2('event')"><div class="option-text">社内イベント</div></div>
+        <div class="option" onclick="selectQ2('exhibition')"><div class="option-text">展示会ブース</div></div>
+        <div class="option" onclick="selectQ2('founding')"><div class="option-text">創業ストーリー動画</div></div>
+        <div class="option" onclick="selectQ2('product')"><div class="option-text">商品・サービス紹介動画</div></div>
+        <div class="option" onclick="selectQ2('bgm')"><div class="option-text">社内BGM</div></div>
+        <div class="option" onclick="selectQ2('greeting')"><div class="option-text">代表挨拶動画</div></div>
+      </div>
+    </div>
+
+    <!-- Q3 サブ質問 -->
+    <div class="question-wrap" id="q3">
+      <div class="question-num">Question 03</div>
+      <div class="question-text" id="q3text"></div>
+      <div class="options" id="q3options"></div>
+    </div>
+
+    <!-- Q4 トーン -->
+    <div class="question-wrap" id="q4">
+      <div class="question-num" id="q4num">Question 04</div>
+      <div class="question-text" id="q4text"></div>
+      <div class="options" id="q4options"></div>
+    </div>
+  </section>
+
+  <!-- Result -->
+  <section class="result-wrap" id="result">
+    <div class="gold-line"></div>
+    <div class="result-label">Your Sound Image</div>
+    <div class="result-title" id="resultTitle"></div>
+    <div class="result-desc" id="resultDesc"></div>
+    <div class="result-tags" id="resultTags"></div>
+    <div class="cta-wrap">
+      <p class="cta-text">
+        この結果はあくまでヒントです。<br>
+        本当の音楽は、直接お話を聞かせていただくところから始まります。
+      </p>
+      <button onclick="copyAndOpenLine(event)" class="cta-btn">無料ヒアリングを申し込む</button>
+      <button class="retry-btn" onclick="retryDiagnostic()">もう一度診断する</button>
+    </div>
+    <div class="gold-line"></div>
+  </section>
+
+  <footer><div class="footer-logo">Soulound</div></footer>
+</div>
+
+<!-- 読み込み画面 -->
+<div class="loading-screen" id="loadingScreen">
+  <div class="loading-logo">Soulound</div>
+  <div class="loading-label">Analyzing Your Sound</div>
+  <div class="loading-bar-wrap">
+    <div class="loading-bar-fill" id="loadingBarFill"></div>
+  </div>
+  <div class="loading-pct" id="loadingPct">0%</div>
+  <div class="loading-msg" id="loadingMsg">想いを分析しています…</div>
+</div>
+
+<!-- コピーポップアップ -->
+<div class="copy-popup" id="copyPopup">
+  <div class="copy-popup-inner">
+    <div class="copy-popup-icon">📋</div>
+    <div class="copy-popup-title">診断結果をコピーしました</div>
+    <p class="copy-popup-desc">LINEを開いたら、トーク画面に<br>貼り付けて送ってください。</p>
+    <div class="copy-popup-result" id="popupResultText"></div>
+    <a href="https://lin.ee/9qzSVhh" target="_blank" rel="noopener noreferrer" class="copy-popup-btn">LINEで申し込む →</a>
+    <button class="copy-popup-close" onclick="closePopup()">閉じる</button>
+  </div>
+</div>
+
+<script>
+let state = {
+  q1: null, q2: null, q3: null, q4: null,
+  history: [],
+  totalQ: 4,
+  casualRoute: false,
+  company: '', industry: '', name: ''
+};
+
+// グラデーション光の色設定
+const glowColors = {
+  trust:     '#1a4a7a',
+  challenge: '#9b2020',
+  people:    '#8a4520',
+  quality:   '#1a5a30',
+  community: '#6a4500',
+  casual:    '#2a2a4a'
+};
+
+function setGlow(key) {
+  const color = glowColors[key] || '#2a2a2a';
+  const tl = document.getElementById('glowTL');
+  const br = document.getElementById('glowBR');
+  tl.style.background = color;
+  br.style.background = color;
+  tl.style.opacity = '0.7';
+  br.style.opacity = '0.5';
+}
+
+function clearGlow() {
+  document.getElementById('glowTL').style.opacity = '0';
+  document.getElementById('glowBR').style.opacity = '0';
+}
+
+function updateProgress(step, total) {
+  const pct = (step / total) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = step + ' / ' + total;
+}
+
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showQ(num) {
+  document.querySelectorAll('.question-wrap').forEach(el => el.classList.remove('active'));
+  const el = document.getElementById('q' + num);
+  if (!el) return;
+  el.classList.add('active');
+
+  // 画面最上部へスクロール
+  scrollToTop();
+
+  document.getElementById('backBtn').classList.toggle('visible', state.history.length > 0);
+}
+
+function goBack() {
+  if (!state.history.length) return;
+  const prev = state.history.pop();
+  if (prev === 1) { state.q1 = null; clearGlow(); }
+  else if (prev === 2) { state.q2 = null; }
+  else if (prev === 3) { state.q3 = null; }
+  showQ(prev);
+  updateProgress(state.history.length, state.totalQ);
+}
+
+function goHome() {
+  // 全リセットしてトップへ
+  state = { q1: null, q2: null, q3: null, q4: null, history: [], totalQ: 4, casualRoute: false, company: '', industry: '', name: '' };
+  clearGlow();
+  document.getElementById('diagnostic').classList.remove('active');
+  document.getElementById('result').classList.remove('active');
+  document.getElementById('hero').style.display = '';
+  // Q1をリセット
+  document.querySelectorAll('.question-wrap').forEach(el => el.classList.remove('active'));
+  document.getElementById('q1').classList.add('active');
+  updateProgress(0, 4);
+  scrollToTop();
+}
+
+function push(n) {
+  state.history.push(n);
+  updateProgress(state.history.length, state.totalQ);
+}
+
+function startDiagnostic() {
+  document.getElementById('hero').style.display = 'none';
+  document.getElementById('diagnostic').classList.add('active');
+  showQ(1);
+  updateProgress(0, 4);
+  scrollToTop();
+}
+
+// Q1
+function selectQ1(val) {
+  push(1);
+  state.q1 = val;
+  setGlow(val);
+
+  if (val === 'casual') {
+    // 気軽ルート: Q2スキップ → トーン選択（Q3スロットを使用）
+    state.casualRoute = true;
+    state.totalQ = 2;
+    updateProgress(1, 2);
+    buildCasualTone();
+    showQ(3);
+    return;
+  }
+
+  showQ(2);
+}
+
+// Q2
+function selectQ2(val) {
+  push(2);
+  state.q2 = val;
+
+  const sub = getSubQuestion(state.q1, val);
+  if (sub) {
+    document.getElementById('q3text').textContent = sub.question;
+    const wrap = document.getElementById('q3options');
+    wrap.innerHTML = '';
+    sub.options.forEach(o => {
+      const d = document.createElement('div');
+      d.className = 'option';
+      d.innerHTML = `<div class="option-text">${o.label}</div>`;
+      d.onclick = () => selectQ3(o.value);
+      wrap.appendChild(d);
+    });
+    showQ(3);
+  } else {
+    buildQ4(state.q1, val, null);
+    showQ(4);
+  }
+}
+
+// Q3
+function selectQ3(val) {
+  push(3);
+  state.q3 = val;
+
+  if (state.casualRoute) {
+    updateProgress(2, 2);
+    showResult(getCasualResult(val));
+    return;
+  }
+
+  buildQ4(state.q1, state.q2, val);
+  showQ(4);
+}
+
+// Q4
+function selectQ4(val) {
+  push(4);
+  state.q4 = val;
+  showResult(getResult(state.q1, state.q2, state.q3, val));
+}
+
+// 気軽ルートのトーン選択をQ3スロットに構築
+function buildCasualTone() {
+  document.getElementById('q3text').textContent = 'どんな雰囲気の曲が好きですか？';
+  document.getElementById('q3options').innerHTML = `
+    <div class="option" onclick="selectQ3('casual_A')"><div class="option-text">元気が出る感じ</div></div>
+    <div class="option" onclick="selectQ3('casual_B')"><div class="option-text">穏やかな感じ</div></div>
+    <div class="option" onclick="selectQ3('casual_C')"><div class="option-text">感動する感じ</div></div>
+    <div class="option" onclick="selectQ3('casual_D')"><div class="option-text">かっこいい感じ</div></div>
+  `;
+}
+
+function getCasualResult(tone) {
+  return { casual_A: 36, casual_B: 23, casual_C: 18, casual_D: 17 }[tone] || 36;
+}
+
+function buildQ4(q1, q2, q3) {
+  const tq = getToneQ(q1, q2, q3);
+  document.getElementById('q4text').textContent = tq.question;
+  const wrap = document.getElementById('q4options');
+  wrap.innerHTML = '';
+  tq.options.forEach(o => {
+    const d = document.createElement('div');
+    d.className = 'option';
+    d.innerHTML = `<div class="option-text">${o.label}</div>`;
+    d.onclick = () => selectQ4(o.value);
+    wrap.appendChild(d);
+  });
+}
+
+function getSubQuestion(q1, q2) {
+  if (q2 === 'recruitment') {
+    const map = {
+      trust:     [{ label: '明るく元気な人', value: 'bright' }, { label: '誠実で真面目な人', value: 'sincere' }, { label: '力強く頼れる人', value: 'strong' }],
+      challenge: [{ label: '新しいことに飛び込める人', value: 'adventurous' }, { label: '明るく前向きな人', value: 'positive' }, { label: '困難を乗り越えられる人', value: 'resilient' }],
+      people:    [{ label: '明るくチームを引っ張れる人', value: 'leader' }, { label: '温かく周りを支えられる人', value: 'supporter' }, { label: '誰とでも仲良くなれる人', value: 'social' }],
+      quality:   [{ label: '細部までこだわれる人', value: 'detail' }, { label: '個性と技術で勝負できる人', value: 'individual' }, { label: '情熱を持って極められる人', value: 'passionate' }],
+      community: [{ label: '地域に溶け込める親しみやすい人', value: 'friendly' }, { label: '元気で行動力のある人', value: 'active' }, { label: '情熱を持って社会に貢献できる人', value: 'contributor' }]
+    };
+    return { question: 'どんな人材に来てほしいですか？', options: map[q1] || [] };
+  }
+  if (q2 === 'corporatePV') return { question: '主な目的はどちらですか？', options: [{ label: '採用・会社の認知向け', value: 'recruit' }, { label: '取引先・投資家向け', value: 'investor' }] };
+  if (q2 === 'anniversary') return { question: 'どの場面で流しますか？', options: [{ label: '開会・オープニング', value: 'opening' }, { label: '落ち着いた式典の場面', value: 'calm' }, { label: '食事・歓談中', value: 'dinner' }] };
+  if (q2 === 'event') return { question: 'どの場面で流しますか？', options: [{ label: '開会・オープニング', value: 'opening' }, { label: 'イベント中のBGMとして', value: 'bgm' }] };
+  if (q2 === 'exhibition') return { question: '使い方はどちらですか？', options: [{ label: 'ブースで流し続けるBGM', value: 'bgm' }, { label: '紹介動画・呼び込みに使う', value: 'promo' }] };
+  if (q2 === 'founding') return { question: '貴社の歩みに近いのはどちらですか？', options: [{ label: '困難を乗り越えながら今に至る', value: 'hardship' }, { label: '着実に積み上げて今に至る', value: 'steady' }] };
+  if (q2 === 'product') return { question: '紹介するものはどちらですか？', options: [{ label: '形のある商品', value: 'tangible' }, { label: '形のないサービス', value: 'intangible' }] };
+  return null;
+}
+
+function getToneQ(q1, q2, q3) {
+  const def = [
+    { label: '明るく前向きな雰囲気', value: 'A' },
+    { label: '落ち着いた穏やかな雰囲気', value: 'B' },
+    { label: '壮大で感動的な雰囲気', value: 'C' },
+    { label: 'スタイリッシュで現代的な雰囲気', value: 'D' }
+  ];
+  if (q2 === 'founding') return { question: '動画の雰囲気はどちらに近いですか？', options: [{ label: '感動する感じ', value: 'emotional' }, { label: '力強く前向きな感じ', value: 'powerful' }] };
+  if (q2 === 'bgm' || q2 === 'greeting') return { question: 'どんな雰囲気にしたいですか？', options: [{ label: '落ち着いた感じ', value: 'B' }, { label: '壮大な感じ', value: 'C' }, { label: '明るく前向きな感じ', value: 'A' }] };
+  return { question: '曲の雰囲気として近いものは？', options: def };
+}
+
+const results = {
+  // 気軽ルート
+  36: { title: '豪華で華やかな、\n<em>オーケストラポップ</em>', desc: 'リズミカルでポップ、それでいてオーケストラ調。聴いた瞬間に「これいい！」と感じさせる印象に残るサウンドです。開会の瞬間を特別なものにします。', tags: ['オーケストラ', 'ポップ', '華やか', '印象的'] },
+  23: { title: 'ムーディーで心地よい、\n<em>インストゥルメンタル</em>', desc: 'ピアノとストリングス、サックスが織りなす穏やかな空間。鼻歌で歌えるほど自然に耳に残る、上質なBGMです。', tags: ['ピアノ', 'ストリングス', 'サックス', 'ムーディー'] },
+  18: { title: '静から動へ、\n<em>感動の壮大なストリングス</em>', desc: 'Aメロからゆっくり始まり、サビで一気に壮大に広がります。感情を揺さぶる、映画のような音楽体験を提供します。', tags: ['ストリングス', '感動系', '壮大', 'オーケストラ'] },
+  17: { title: '爽快で現代的な、\n<em>エレクトロニックミュージック</em>', desc: 'グリッサンドから始まり、早いテンポで爽快感を演出。シンセサイザーで現代的なスタイリッシュさを表現します。', tags: ['電子音楽', 'スタイリッシュ', 'モダン', '爽快'] },
+
+  // 信頼・誠実
+  1:  { title: '落ち着いた信頼感、\n<em>ストリングスポップ</em>', desc: '落ち着いたテンポで明るめのストリングスを基調に、少しリズムも感じる一曲。割と一定のテンション感が、誠実さと安定感を音楽で表現します。', tags: ['ストリングス', '落ち着き', '信頼', '明るい'] },
+  16: { title: '誠実さが伝わる、\n<em>ピアノバラード</em>', desc: 'ゆったりとしたテンポで、明るくも落ち着いた印象。同じフレーズを辿りながらサビで静かに飛躍する、誠実さを音楽で表現した一曲です。', tags: ['ピアノ', 'ストリングス', '誠実', '落ち着き'] },
+  51: { title: '明るくリズミカルな、\n<em>エレクトロポップ</em>', desc: '電子音楽でポップな感じを出しつつ、音ハメできるリズム感で動画を引き立てます。テンション感が一定で使いやすい一曲です。', tags: ['電子音楽', 'ポップ', 'リズミカル', '明るい'] },
+  52: { title: 'ゆったりと上質な、\n<em>ピアノ＆ストリングス</em>', desc: 'ストリングスとピアノで品格を演出。リズミカルに音ハメもできる、信頼感と洗練さを両立した楽曲です。', tags: ['ピアノ', 'ストリングス', '上質', '信頼感'] },
+  55: { title: '勢いあふれる、\n<em>エレクトロダンス</em>', desc: '電子音楽で爽快感を演出し、リズミカルに表現。若々しいエネルギーで採用動画を彩ります。', tags: ['電子音楽', '爽快', 'ポップ', 'エネルギッシュ'] },
+  56: { title: '力強さと期待感、\n<em>ドラマティックオーケストラ</em>', desc: 'ピアノと打楽器、ストリングスで力強さを表現。即戦力への期待感を、情緒豊かに音楽化します。', tags: ['ピアノ', 'ストリングス', '力強い', '情緒的'] },
+  5:  { title: '重厚で栄誉ある、\n<em>オーケストラ式典曲</em>', desc: '蛍の光をもっと英国の栄誉授与式並みに重厚感ある仕上がり。ゆったりと余裕のある、記念式典にふさわしい一曲です。', tags: ['オーケストラ', '重厚', '式典', '栄誉'] },
+  66: { title: '親しみやすく盛り上がる、\n<em>オーケストラポップ</em>', desc: '親しみやすいフレーズをAメロから仕込み、サビへの盛り上がりを作る。サビ後はもう一度Aメロが来て終了する、遊び心のあるオーケストラです。', tags: ['オーケストラ', 'ポップ', '親しみやすい', '盛り上がり'] },
+  67: { title: '明るく場を包む、\n<em>ストリングス＆ピアノ</em>', desc: 'ストリングスとピアノと打楽器で場が明るい雰囲気になるように。金管楽器も加わり、ずっと流れてるなぁと感じさせる心地よいBGMです。', tags: ['ストリングス', 'ピアノ', '明るい', 'BGM'] },
+  71: { title: 'まっすぐで心地よい、\n<em>ストリングス＆エレクトロ</em>', desc: 'ストリングスと電子音楽でまっすぐの様子を表現。展示会の空間を心地よく包む、リズム一定の落ち着いたBGMです。', tags: ['ストリングス', '電子音楽', '落ち着き', 'BGM'] },
+  72: { title: '特徴的でまっすぐな、\n<em>エレクトロポップ</em>', desc: '電子音楽で特徴的なサウンドを作りつつ真っ直ぐな気持ちを作り出す。展示ブースの中でも印象に残る呼び込みサウンドです。', tags: ['電子音楽', '特徴的', '明るい', '呼び込み'] },
+  46: { title: '信念を貫く、\n<em>情緒豊かなメロドラマ</em>', desc: '美空ひばりの地上の星のように、メロディラインを情緒豊かに、バックを威厳ある感じでやや一定に表現。絶対に破らないという信念を大事にした一曲です。', tags: ['ストリングス', '情緒的', '信念', '威厳'] },
+  10: { title: 'なびくように穏やかな、\n<em>ストリングスBGM</em>', desc: 'ストリングスでブラスの勢いを表現しつつ、社内でゆったりとなびかせる一曲。オンビートではなくリズムをズラして特徴を出します。', tags: ['ストリングス', '穏やか', 'BGM', '落ち着き'] },
+  21: { title: '輝きを放つ、\n<em>ストリングスインスト</em>', desc: 'ストリングスでゆったり流しながらも、インスト音源としての輝きを見せる一曲。代表の言葉を引き立てる上品なサウンドです。', tags: ['ストリングス', '上品', '輝き', '明るい'] },
+  31: { title: '広がりのある、\n<em>ストリングスアンビエント</em>', desc: 'こだまが響くような音から始まりだんだんと強くなっていく。サビ直前まで盛り上がりを見せるが、サビは来ない。次の者を待つように静かに揺れる一曲です。', tags: ['ストリングス', '広がり', 'アンビエント', '静寂'] },
+
+  // 挑戦・成長
+  2:  { title: '未来感あふれる、\n<em>エレクトロニックポップ</em>', desc: 'シンセサイザーや電子ドラムで未来感を表現。明るく前向きなエネルギーを音楽で届けます。', tags: ['電子音楽', '未来感', '明るい', 'ポップ'] },
+  6:  { title: '自由で挑戦的な、\n<em>挑戦的エレクトロ</em>', desc: '電子音がたくさん。リズムが独特的だったりノリのポイントをわざとずらしたり、音楽的にもたくさんの自由を追求した曲。感動とかもない、ただ挑戦的。', tags: ['電子音楽', '自由', '挑戦的', '独創的'] },
+  7:  { title: '森の中の小さな冒険、\n<em>ピアノ＆木管</em>', desc: 'ピアノと木管楽器で森の中にいる感じを演出。ストリングスはピチカートを基本に、小さなダンゴムシの冒険並みのゆったりとした世界観です。', tags: ['ピアノ', '木管楽器', '穏やか', '冒険'] },
+  11: { title: 'じわじわ上り詰める、\n<em>シネマティックストリングス</em>', desc: 'ストリングスでAメロの低いところからサビの盛り上がりまでじわじわ上り詰めていく様子を音楽で表現します。', tags: ['ストリングス', 'シネマティック', '盛り上がり', '成長'] },
+  12: { title: '転調の連続、\n<em>夢が広がるサウンド</em>', desc: '転調、転調、転調！頭に残るサウンドで夢が広がっていく様子を表現。可能性は無限大というメッセージを音楽で届けます。', tags: ['シンセ', '電子音楽', '転調', '夢'] },
+  76: { title: '挫折から解放へ、\n<em>壮大なオーケストラ</em>', desc: '暗い雰囲気から乗り越えて、サビで一気に解放される壮大さ。困難を乗り越えてきた会社の歴史を音楽で表現します。', tags: ['オーケストラ', '壮大', '感動', '打楽器'] },
+  77: { title: '深みから伸びやかに、\n<em>オーケストラバラード</em>', desc: 'ゆったりとしたオーケストラ調で打楽器も用いて、深みのある音から伸び伸びと乗り越えていく感じを表現。サビで一気に盛り上がり情緒豊かに表現します。', tags: ['オーケストラ', '打楽器', '情緒的', '壮大'] },
+  60: { title: '威厳ある壮大な、\n<em>式典オーケストラ</em>', desc: 'ストリングスと金管楽器がメイン、木管楽器も補佐で入る本格的なオーケストラ調。AメロBメロサビへと繋げる威厳感と壮大感を演出します。', tags: ['オーケストラ', '壮大', '威厳', '開会'] },
+  61: { title: '儚くも飽きない、\n<em>ピアノ＆ストリングス</em>', desc: 'ピアノとストリングスで少し儚さを出しながら制作。同じフレーズや同じリズムはあまり使わず、音楽的に飽きない落ち着いた一曲です。', tags: ['ピアノ', 'ストリングス', '儚い', '落ち着き'] },
+  62: { title: '控えめなジャズ、\n<em>ピアノトリオ＆ストリングス</em>', desc: 'ピアノと打楽器類、ストリングスで激しくない控えめなジャズ。食事や歓談の場をほどよく彩る心地よいサウンドです。', tags: ['ジャズ', 'ピアノ', '控えめ', '食事BGM'] },
+  68: { title: 'ガンダムUCのような、\n<em>開会オーケストラ</em>', desc: 'ガンダムUCの有名な曲のように、立ち上がりから盛り上がりまでを表現。かなり壮大でかっこよくてついつい笑っちゃう感じ。リズミカルです。', tags: ['オーケストラ', '壮大', 'かっこいい', '開会'] },
+  69: { title: '成長感ある落ち着いた、\n<em>ストリングス＆ピアノ</em>', desc: '成長感を感じる曲ですがポップすぎない。ピアノとストリングスを使用し、中〜高音域をよく使う落ち着いた一曲です。', tags: ['ストリングス', 'ピアノ', '成長', '落ち着き'] },
+  88: { title: '元気が出る、\n<em>エレキ＆ドラムロック</em>', desc: 'エレキギターとドラムやクラップなどを使用し聴けば元気になるを演出。社内に活気をもたらすエネルギッシュなBGMです。', tags: ['エレキギター', 'ドラム', '元気', 'ロック'] },
+  42: { title: 'スケール感あふれる、\n<em>シネマティックストリングス</em>', desc: 'ピアノやストリングスで最初から伸び伸びと表現。だんだんと盛り上がる様子も表現。誰も寝てはならぬのような壮大なスケール感です。', tags: ['ストリングス', 'ピアノ', '壮大', 'シネマティック'] },
+  82: { title: 'リズミカルで音ハメできる、\n<em>シンセ＆エレクトロ</em>', desc: 'リズミカルにシンセと電子音楽を融合。音ハメできる雰囲気でテンション感は一定。商品の魅力をスタイリッシュに引き立てます。', tags: ['シンセ', '電子音楽', 'リズミカル', '音ハメ'] },
+  83: { title: '熱量あふれる、\n<em>ドラム＆ブラス</em>', desc: 'ドラムと金管楽器の融合。早いドラムにブラス類が重なって熱量の高さを音で表現。Whiplash-Caravanのような疾走感です。', tags: ['ドラム', 'ブラス', '熱量', 'ジャズ'] },
+  92: { title: '王者の風格、\n<em>ストリングス＆パーカッション</em>', desc: 'ストリングスとドラムと打楽器類で王者のような風格を音楽で表現。盛り上がりも作るがその温度差は広すぎない、代表の威厳を引き立てます。', tags: ['ストリングス', '打楽器', '王者', '威厳'] },
+
+  // 人・チームワーク
+  8:  { title: '柔らかく温かい、\n<em>ストリングスバラード</em>', desc: '地域を豊かにしたいという柔らかな想いを、ストリングスで穏やかに音楽化。重厚感はありながら温かみを失わない一曲です。', tags: ['ストリングス', '温かい', '穏やか', '想い'] },
+  33: { title: 'じわじわ高まる、\n<em>ドラマティックストリングス</em>', desc: 'Aメロの低いところからサビの盛り上がりまでじわじわ上り詰めていく様子を音楽で表現。チームの可能性を引き出す一曲です。', tags: ['ストリングス', 'ドラマティック', '盛り上がり', 'チーム'] },
+  53: { title: '伸び伸びとポップな、\n<em>シンセストリングス</em>', desc: '少し早めで明るくポップな感じ。シンセストリングスを起用し、横のつながりが強い感じがする伸び伸びとした曲です。電子ドラムも使用します。', tags: ['シンセ', 'ストリングス', 'ポップ', '伸び伸び'] },
+  59: { title: '伸びやかで元気な、\n<em>ストリングス＆フルート</em>', desc: 'ストリングスで基盤を支えながら、笛系が伸びやかに歌う。しっとりではなく元気な印象を与えるサウンドです。', tags: ['ストリングス', '笛', '元気', '伸びやか'] },
+  63: { title: '感動的な壮大さ、\n<em>感動オーケストラ</em>', desc: 'ゆったりとしたオーケストラ調で全体を通してやや感動的に仕上げる。サビでしっかりとした盛り上がりを見せ、最後に静かになりもう一度バンっと盛り上がって終了します。', tags: ['オーケストラ', '感動', '壮大', 'クライマックス'] },
+  64: { title: '楽しい歓談感、\n<em>ジャズ＆ストリングス</em>', desc: 'ピアノとストリングスと打楽器でジャズっぽく。みんなが明るく楽しめるように歓談感のある、やや主張感もある曲です。', tags: ['ジャズ', 'ピアノ', '歓談', '楽しい'] },
+  73: { title: '包容力ある心地よい、\n<em>ストリングス＆打楽器</em>', desc: 'ストリングスと打楽器で展示内を支える楽曲。繋がりが大事なので包容力のある曲にして聞いてるだけで心地いい空間を制作します。', tags: ['ストリングス', '打楽器', '包容力', '心地よい'] },
+  74: { title: 'リズミカルで呼び込む、\n<em>エレクトロ＆ストリングス</em>', desc: '電子音楽でツカミを出しストリングスも採用しながらリズミカルに表現。一定すぎないよう特徴的なリズムも用いながら、ブースに足を止めさせます。', tags: ['電子音楽', 'ストリングス', 'リズミカル', '呼び込み'] },
+  78: { title: '仲間が集まる感動、\n<em>シネマティック</em>', desc: 'ピアノやバイオリンソロの寂しい雰囲気から仲間が増えていくようにオーケストラ調で伸び伸びと表現。TAKUMI/匠のような情緒豊かな一曲です。', tags: ['オーケストラ', '感動', '情緒的', 'シネマティック'] },
+  79: { title: '温かく懐かしい、\n<em>ピアノ＆ストリングス</em>', desc: 'ゆったりして寂しくないあったかい雰囲気から切なさを表現。ストリングスとピアノでふわふわとした感じからサビまでの盛り上がりを作ります。', tags: ['ピアノ', 'ストリングス', '温かい', '懐かしい'] },
+  84: { title: '一定で支える、\n<em>エレクトロ＆ストリングス</em>', desc: '電子音楽とストリングスの融合。主張しすぎず一定で裏から支えている。形ある商品の魅力を穏やかに引き立てます。', tags: ['電子音楽', 'ストリングス', '落ち着き', '一定'] },
+  85: { title: '温かく緩やかな、\n<em>ストリングス＆ピアノ</em>', desc: 'ストリングスとピアノで暖かさを出す。優しめのドラムで割と一定のリズム。形のないサービスの温かみをゆったりと表現します。', tags: ['ストリングス', 'ピアノ', '温かい', '緩やか'] },
+  91: { title: '柔らかく包むジャズ、\n<em>ピアノトリオ＆サックス</em>', desc: '柔らかいピアノやドラムにサックスを重ねジャズっぽい雰囲気を醸し出す。やわらかく社内を包む心地よいBGMです。', tags: ['ジャズ', 'ピアノ', 'サックス', '柔らかい'] },
+  93: { title: '糸のような温かさ、\n<em>ピチカート＆バイオリン</em>', desc: '糸のような曲調でストリングスのピチカートとピアノと伸びるバイオリンで柔らかく優しく表現。代表の温かい人柄を引き立てます。', tags: ['ピチカート', 'バイオリン', '温かい', '優しい'] },
+
+  // 品質・こだわり
+  3:  { title: '実際の音を取り込んだ、\n<em>フィールド録音＆ストリングス</em>', desc: '実世界の作業音（鉄を打つ音、機械音など）を収録しリズムを作り、ピアノとストリングスで補填する。品質へのこだわりをリアルな音で表現します。', tags: ['フィールド録音', 'ストリングス', 'こだわり', 'リアル'] },
+  9:  { title: '職人の魂、\n<em>和楽器＆ストリングス</em>', desc: '和楽器の音を基調とし職人感の演出。三味線や太鼓の音が重なるが和風にしすぎないためのストリングスとピアノが混在しています。', tags: ['和楽器', 'ストリングス', '職人', '融合'] },
+  14: { title: 'カフェに流れる洗練、\n<em>フルート＆ストリングス</em>', desc: 'メインが笛のストリングス＆ピアノ。独特なリズムはなく洗練された完成を作るイメージ。安定した調子でカフェに流れててもおかしくない曲です。', tags: ['フルート', 'ストリングス', '洗練', 'カフェ'] },
+  15: { title: '匠のような静かな自信、\n<em>ストリングスアンサンブル</em>', desc: 'TAKUMI/匠を参考にストリングスやピアノを使用。だが静かにしすぎない。静かな自信と誇りを感じさせる一曲です。', tags: ['ストリングス', 'ピアノ', '静かな自信', '匠'] },
+  19: { title: '品格ある商品紹介、\n<em>ストリングス＆ピアノ</em>', desc: '品質と本物を追求する会社の商品紹介に相応しい、ストリングスとピアノによる上質なサウンド。紹介したいものの邪魔をしない音楽です。', tags: ['ストリングス', 'ピアノ', '品格', '上質'] },
+  24: { title: '本気のジャズバー、\n<em>ブラス＆ジャズ</em>', desc: 'シンセサイザーもしくはブラス楽器でナミナミな感じの表現。映画Whiplash - Caravanのように、カフェではなく本気のジャズバーで流れるイメージです。', tags: ['ブラス', 'ジャズ', '本格派', '迫力'] },
+  30: { title: '情熱大陸のような、\n<em>バイオリン＆オーケストラ</em>', desc: '情熱大陸のテーマのように早く激しい感じ。ストリングスで成長を表現しながら、職人のこだわりと情熱を音楽で届けます。', tags: ['バイオリン', 'オーケストラ', '情熱', '疾走感'] },
+  34: { title: 'ムーディーに支える、\n<em>ジャズカルテット</em>', desc: 'ピアノやコントラバス、ドラムが優しく響き、サックスがその場を奏でる。明るいが元気という感じではなく、ゆったり支えるジャズです。', tags: ['ジャズ', 'サックス', 'コントラバス', 'ムーディー'] },
+  35: { title: '4拍子と3拍子が交差する、\n<em>オーケストラ＆ブラス</em>', desc: '4拍子と3拍子を行き来し威厳のある様子を表現。ブラス類の金管楽器やピアノとドラム、ストリングスでバックを支えるイメージです。', tags: ['オーケストラ', 'ブラス', '威厳', '変拍子'] },
+  38: { title: '豪華で威厳ある、\n<em>オーケストラ＆エレクトロ</em>', desc: '豪華な感じで少し早めで明るい。オーケストラ調に威厳のある感じをプラス。未来に向かう力強さを感じさせます。', tags: ['オーケストラ', '電子音楽', '豪華', '威厳'] },
+  39: { title: '伸び伸びと感動的な、\n<em>ストリングスシンフォニー</em>', desc: 'ゆったりとした明るい感動系。ストリングスで伸び伸びした音にしながらサビ1→A→B→サビ1→サビ2のように移行していきます。', tags: ['ストリングス', '感動', '伸び伸び', 'シンフォニー'] },
+  40: { title: '情熱大陸×社内イベント、\n<em>バイオリン＆パーカッション</em>', desc: '情熱大陸のイメージで、社内イベントを盛り上げる力強くエネルギッシュな一曲です。', tags: ['バイオリン', '打楽器', '情熱', '盛り上がり'] },
+  41: { title: '感謝を込めた壮大さ、\n<em>ストリングス＆ティンパニ</em>', desc: '伸び伸びと緩やかなストリングスで感謝の気持ちを目一杯に表現。ピアノやティンパニも使用し、だんだんと盛り上がっていきます。', tags: ['ストリングス', 'ティンパニ', '感謝', '壮大'] },
+  43: { title: 'さりげなく支える、\n<em>エレクトロポップBGM</em>', desc: 'やや主張しすぎず電子音楽でポップに。音楽で会社の雰囲気を支えている感じ。さりげなく流れ続ける使いやすいBGMです。', tags: ['電子音楽', 'ポップ', 'BGM', '控えめ'] },
+  44: { title: '世界観を崩さない、\n<em>ストリングスBGM</em>', desc: 'やや伸び伸びしているがそのブースの世界観を崩しすぎない。ストリングスが穏やかに流れる展示会向けBGMです。', tags: ['ストリングス', '穏やか', 'BGM', '展示会'] },
+  54: { title: 'ジャズバー×オーケストラ、\n<em>打楽器＆ストリングス</em>', desc: '生の打楽器類を活用してリズミカルに表現。ストリングスの速弾きソロもしくはサックスソロ。本気のジャズバーで流れるイメージです。', tags: ['打楽器', 'ストリングス', 'サックス', 'ジャズ'] },
+  57: { title: 'ソロが輝く、\n<em>リズミカルなポップ</em>', desc: '打楽器類と電子音楽を用いてリズミカルに表現。ソロのように個性を発揮しながら奏でる、個と技術が光る一曲です。', tags: ['打楽器', '電子音楽', 'リズミカル', '個性'] },
+  58: { title: '品格あるどっしりとした、\n<em>ストリングスバラード</em>', desc: 'ストリングスとピアノで情緒豊かに表現。品性を重んじたどっしりとした曲で、細部までこだわる姿勢を音楽で伝えます。', tags: ['ストリングス', 'ピアノ', '品格', '情緒的'] },
+  65: { title: '情緒豊かな、\n<em>オーケストラ×エレクトロ</em>', desc: '電子音や打楽器類とオーケストラ調の融合。リズミカルで情緒豊か、サビでしっかり盛り上がる一曲です。', tags: ['オーケストラ', '電子音楽', '情緒的', '盛り上がり'] },
+  70: { title: '打楽器が主役の、\n<em>オーケストラ＆パーカッション</em>', desc: '打楽器類とストリングス類を使用。打楽器類がやや主役となりながら情緒豊かにサビの盛り上がりまで表現。中の上くらいの盛り上がりです。', tags: ['打楽器', 'オーケストラ', '情緒的', '盛り上がり'] },
+  75: { title: '打楽器×オーケストラ×エレクトロ、\n<em>展示会呼び込み曲</em>', desc: '打楽器類をメインにオーケストラ調に仕上げる。電子音楽も組み合わせながら、特徴的なリズムや豊かな音楽的進行を制作します。', tags: ['打楽器', 'オーケストラ', '電子音楽', '展示会'] },
+  89: { title: '魂のビート、\n<em>魂のパーカッション</em>', desc: 'We Will Rock Youのようなリズミカルなビートを奏でて魂の思いを作り出す。打楽器やドラムで特別感を演出します。', tags: ['打楽器', 'ドラム', 'リズミカル', '魂'] },
+  94: { title: '仙人のような風格、\n<em>和楽器×打楽器</em>', desc: 'ドラムや打楽器類と和楽器を重ね合わせる。強い感じや仙人感を表現。笛が後ろで鳴っていてもいい、独特の威厳です。', tags: ['和楽器', '打楽器', '仙人', '威厳'] },
+
+  // 地域・社会貢献
+  4:  { title: '散歩するような、\n<em>和風ポップ</em>', desc: '和楽器も使用した明るめでポップなサウンド。ストリングスのピチカートが散歩している雰囲気を演出し、親しみやすい印象を与えます。', tags: ['和楽器', 'ポップ', '親しみやすい', '明るい'] },
+  20: { title: '穏やかな社会貢献、\n<em>ストリングス＆ピアノ</em>', desc: '社会貢献×環境への配慮をテーマに、ストリングスやピアノで穏やかに表現。温かみと誠実さを感じさせるサウンドです。', tags: ['ストリングス', 'ピアノ', '穏やか', '温かい'] },
+  25: { title: '優勝者発表前の期待感、\n<em>ストリングスアンサンブル</em>', desc: 'ある程度威厳はある感じ。優勝者発表前の雰囲気で気持ちがだんだん上がっていく様子。Aメロでこそしっかりと優勝者発表前の雰囲気が出ています。', tags: ['ストリングス', '威厳', '期待感', '盛り上がり'] },
+  45: { title: '縦横無尽のストリングス、\n<em>情熱的シンフォニー</em>', desc: 'ストリングスは低音から高音まで縦横無尽に駆け抜け、時としてリズミカルに、時として伸び伸びとなる。笛系がメインで情熱のある芯のあるメロディを奏でます。', tags: ['ストリングス', '笛', '情熱', '縦横無尽'] },
+  80: { title: '情緒豊かに盛り上がる、\n<em>ストリングス×打楽器</em>', desc: '打楽器やストリングスで太いところを表現。打楽器が盛り上がることによってサビへの盛り上がりを作る、情緒豊かな一曲です。', tags: ['ストリングス', '打楽器', '情緒的', '盛り上がり'] },
+  81: { title: '前へ進み続ける、\n<em>ジャズ＆オーケストラ</em>', desc: 'Whiplash-Caravanのような雰囲気。打楽器とストリングス、ブラスバンドが重なる。情緒は豊かだが感動と迫力を行き来するわけではなく、ひたすら前へ進み続けます。', tags: ['打楽器', 'ブラス', 'オーケストラ', '前進'] },
+  86: { title: '情熱大陸×地域の誇り、\n<em>バイオリン＆打楽器</em>', desc: 'バイオリンの速弾きと打楽器類が融合して情熱大陸のような雰囲気。ピアノを重ねても良い。打楽器類で重厚感の表現します。', tags: ['バイオリン', '打楽器', '情熱', '重厚'] },
+  87: { title: '地域を動かす情熱、\n<em>バイオリン×エレクトロ</em>', desc: 'バイオリンの速弾きと打楽器類が融合して情熱大陸のような雰囲気。電子音楽を少し重ねてサービスの躍動感を表現します。', tags: ['バイオリン', '電子音楽', '情熱', '躍動感'] },
+  90: { title: 'オルゴールのような安心感、\n<em>シンセアンビエント</em>', desc: '安心感のあるメロディをポーンって感じの柔らかいシンセサイザーで奏でる。オルゴールが鳴っているのと感覚は同じ。シンセバイオリンで柔らかに音色を重ねます。', tags: ['シンセ', 'オルゴール感', '安心', '柔らかい'] },
+  95: { title: '地域ファーストの穏やかさ、\n<em>ストリングス＆ピアノ</em>', desc: 'ストリングスとピアノで表現。主張しすぎない感じで代表の話を遮らない。盛り上がりすぎない、あくまでも地域ファーストの一曲です。', tags: ['ストリングス', 'ピアノ', '穏やか', '地域'] },
+};
+
+function getResult(q1, q2, q3, q4) {
+  // 信頼・誠実
+  if (q1 === 'trust') {
+    if (q2 === 'corporatePV') {
+      if (q3 === 'recruit') return q4 === 'B' ? 1 : q4 === 'C' ? 35 : q4 === 'D' ? 51 : 51;
+      if (q3 === 'investor') return q4 === 'A' ? 1 : q4 === 'B' ? 52 : q4 === 'C' ? 35 : 52;
+    }
+    if (q2 === 'recruitment') {
+      if (q3 === 'bright') return 55;
+      if (q3 === 'sincere') return 16;
+      if (q3 === 'strong') return 56;
+    }
+    if (q2 === 'anniversary') {
+      if (q3 === 'opening') return q4 === 'A' ? 66 : q4 === 'D' ? 51 : 5;
+      if (q3 === 'calm') return q4 === 'A' ? 67 : q4 === 'C' ? 5 : q4 === 'D' ? 51 : 61;
+      if (q3 === 'dinner') return q4 === 'A' ? 67 : q4 === 'C' ? 5 : q4 === 'D' ? 51 : 62;
+    }
+    if (q2 === 'event') {
+      if (q3 === 'opening') return q4 === 'A' ? 66 : q4 === 'C' ? 66 : q4 === 'D' ? 51 : 32;
+      if (q3 === 'bgm') return q4 === 'A' ? 67 : q4 === 'C' ? 66 : q4 === 'D' ? 51 : 10;
+    }
+    if (q2 === 'exhibition') {
+      if (q3 === 'bgm') return q4 === 'A' ? 67 : q4 === 'C' ? 38 : q4 === 'D' ? 72 : 71;
+      if (q3 === 'promo') return q4 === 'A' ? 66 : q4 === 'C' ? 38 : q4 === 'D' ? 72 : 71;
+    }
+    if (q2 === 'founding') {
+      if (q3 === 'hardship') return q4 === 'powerful' ? 6 : 46;
+      if (q3 === 'steady') return q4 === 'powerful' ? 6 : 16;
+    }
+    if (q2 === 'product') {
+      if (q3 === 'tangible') return q4 === 'A' ? 26 : q4 === 'C' ? 41 : q4 === 'D' ? 51 : 52;
+      if (q3 === 'intangible') return q4 === 'A' ? 26 : q4 === 'C' ? 41 : q4 === 'D' ? 51 : 13;
+    }
+    if (q2 === 'bgm') return q4 === 'A' ? 67 : q4 === 'C' ? 31 : q4 === 'D' ? 72 : 10;
+    if (q2 === 'greeting') return q4 === 'A' ? 21 : q4 === 'C' ? 56 : q4 === 'D' ? 51 : 21;
+  }
+
+  // 挑戦・成長
+  if (q1 === 'challenge') {
+    if (q2 === 'corporatePV') {
+      if (q3 === 'recruit') return q4 === 'A' ? 53 : q4 === 'C' ? 35 : q4 === 'D' ? 6 : 7;
+      if (q3 === 'investor') return q4 === 'A' ? 7 : q4 === 'C' ? 35 : q4 === 'D' ? 27 : 7;
+    }
+    if (q2 === 'recruitment') {
+      if (q3 === 'adventurous') return 12;
+      if (q3 === 'positive') return 2;
+      if (q3 === 'resilient') return 76;
+    }
+    if (q2 === 'anniversary') {
+      if (q3 === 'opening') return q4 === 'A' ? 68 : q4 === 'D' ? 68 : 60;
+      if (q3 === 'calm') return q4 === 'A' ? 69 : q4 === 'C' ? 60 : q4 === 'D' ? 6 : 61;
+      if (q3 === 'dinner') return q4 === 'A' ? 69 : q4 === 'C' ? 60 : q4 === 'D' ? 6 : 62;
+    }
+    if (q2 === 'event') {
+      if (q3 === 'opening') return q4 === 'D' ? 68 : 68;
+      if (q3 === 'bgm') return q4 === 'A' ? 88 : q4 === 'C' ? 68 : q4 === 'D' ? 88 : 69;
+    }
+    if (q2 === 'exhibition') {
+      if (q3 === 'bgm') return q4 === 'A' ? 88 : q4 === 'C' ? 42 : q4 === 'D' ? 17 : 61;
+      if (q3 === 'promo') return q4 === 'A' ? 74 : q4 === 'C' ? 42 : q4 === 'D' ? 17 : 42;
+    }
+    if (q2 === 'founding') {
+      if (q3 === 'hardship') return q4 === 'powerful' ? 6 : 76;
+      if (q3 === 'steady') return q4 === 'powerful' ? 6 : 77;
+    }
+    if (q2 === 'product') {
+      if (q3 === 'tangible') return q4 === 'C' ? 77 : 82;
+      if (q3 === 'intangible') return q4 === 'C' ? 77 : 83;
+    }
+    if (q2 === 'bgm') return q4 === 'A' ? 88 : q4 === 'C' ? 42 : q4 === 'D' ? 88 : 69;
+    if (q2 === 'greeting') return q4 === 'D' ? 6 : 92;
+  }
+
+  // 人・チームワーク
+  if (q1 === 'people') {
+    if (q2 === 'corporatePV') {
+      if (q3 === 'recruit') return q4 === 'A' ? 53 : q4 === 'C' ? 63 : q4 === 'D' ? 53 : 53;
+      if (q3 === 'investor') return q4 === 'A' ? 53 : q4 === 'B' ? 52 : q4 === 'C' ? 63 : 53;
+    }
+    if (q2 === 'recruitment') {
+      if (q3 === 'leader') return 33;
+      if (q3 === 'supporter') return 8;
+      if (q3 === 'social') return 59;
+    }
+    if (q2 === 'anniversary') {
+      if (q3 === 'opening') return q4 === 'A' ? 53 : q4 === 'D' ? 53 : 63;
+      if (q3 === 'calm') return q4 === 'A' ? 67 : q4 === 'C' ? 63 : q4 === 'D' ? 53 : 79;
+      if (q3 === 'dinner') return q4 === 'A' ? 64 : q4 === 'C' ? 63 : q4 === 'D' ? 53 : 64;
+    }
+    if (q2 === 'event') {
+      if (q3 === 'opening') return q4 === 'A' ? 53 : q4 === 'D' ? 53 : 63;
+      if (q3 === 'bgm') return q4 === 'A' ? 28 : q4 === 'C' ? 63 : q4 === 'D' ? 53 : 91;
+    }
+    if (q2 === 'exhibition') {
+      if (q3 === 'bgm') return q4 === 'A' ? 73 : q4 === 'C' ? 63 : q4 === 'D' ? 74 : 73;
+      if (q3 === 'promo') return q4 === 'A' ? 74 : q4 === 'C' ? 63 : q4 === 'D' ? 74 : 73;
+    }
+    if (q2 === 'founding') {
+      if (q3 === 'hardship') return q4 === 'powerful' ? 53 : 78;
+      if (q3 === 'steady') return q4 === 'emotional' ? 79 : 53;
+    }
+    if (q2 === 'product') {
+      if (q3 === 'tangible') return q4 === 'A' ? 84 : q4 === 'C' ? 78 : q4 === 'D' ? 84 : 85;
+      if (q3 === 'intangible') return q4 === 'A' ? 84 : q4 === 'C' ? 78 : q4 === 'D' ? 84 : 85;
+    }
+    if (q2 === 'bgm') return q4 === 'A' ? 91 : q4 === 'C' ? 63 : q4 === 'D' ? 53 : 91;
+    if (q2 === 'greeting') return q4 === 'A' ? 93 : q4 === 'C' ? 63 : q4 === 'D' ? 53 : 93;
+  }
+
+  // 品質・こだわり
+  if (q1 === 'quality') {
+    if (q2 === 'corporatePV') {
+      if (q3 === 'recruit') return q4 === 'A' ? 3 : q4 === 'B' ? 4 : q4 === 'C' ? 35 : 54;
+      if (q3 === 'investor') return q4 === 'A' ? 3 : q4 === 'B' ? 52 : q4 === 'C' ? 35 : 54;
+    }
+    if (q2 === 'recruitment') {
+      if (q3 === 'detail') return 58;
+      if (q3 === 'individual') return 57;
+      if (q3 === 'passionate') return 65;
+    }
+    if (q2 === 'anniversary') {
+      if (q3 === 'opening') return q4 === 'A' ? 65 : q4 === 'D' ? 54 : 65;
+      if (q3 === 'calm') return q4 === 'A' ? 15 : q4 === 'C' ? 65 : q4 === 'D' ? 54 : 14;
+      if (q3 === 'dinner') return q4 === 'A' ? 15 : q4 === 'C' ? 65 : q4 === 'D' ? 54 : 62;
+    }
+    if (q2 === 'event') {
+      if (q3 === 'opening') return q4 === 'D' ? 54 : 70;
+      if (q3 === 'bgm') return q4 === 'A' ? 57 : q4 === 'C' ? 70 : q4 === 'D' ? 54 : 89;
+    }
+    if (q2 === 'exhibition') {
+      if (q3 === 'bgm') {
+        // 3択: 伸び伸び→44, リズミカル→75, 落ち着き→54
+        return q4 === 'A' ? 44 : q4 === 'C' ? 75 : 54;
+      }
+      if (q3 === 'promo') return q4 === 'A' ? 75 : q4 === 'B' ? 44 : q4 === 'C' ? 75 : 54;
+    }
+    if (q2 === 'founding') {
+      return q4 === 'powerful' ? 54 : 30;
+    }
+    if (q2 === 'product') {
+      if (q3 === 'tangible') return q4 === 'A' ? 19 : q4 === 'D' ? 24 : 19;
+      if (q3 === 'intangible') return q4 === 'A' ? 13 : q4 === 'D' ? 24 : 13;
+    }
+    if (q2 === 'bgm') return q4 === 'A' ? 89 : q4 === 'C' ? 70 : q4 === 'D' ? 54 : 89;
+    if (q2 === 'greeting') return q4 === 'A' ? 94 : q4 === 'C' ? 65 : q4 === 'D' ? 54 : 94;
+  }
+
+  // 地域・社会貢献
+  if (q1 === 'community') {
+    if (q2 === 'corporatePV') {
+      if (q3 === 'recruit') return q4 === 'C' ? 35 : 20;
+      if (q3 === 'investor') return q4 === 'A' ? 20 : q4 === 'C' ? 35 : 20;
+    }
+    if (q2 === 'recruitment') {
+      if (q3 === 'friendly') return 4;
+      if (q3 === 'active') return 59;
+      if (q3 === 'contributor') return 80;
+    }
+    if (q2 === 'anniversary') {
+      if (q3 === 'opening') return q4 === 'A' ? 45 : q4 === 'C' ? 45 : q4 === 'D' ? 20 : 45;
+      if (q3 === 'calm') return q4 === 'A' ? 20 : q4 === 'C' ? 45 : q4 === 'D' ? 20 : 39;
+      if (q3 === 'dinner') return q4 === 'A' ? 40 : q4 === 'B' ? 64 : q4 === 'C' ? 45 : 40;
+    }
+    if (q2 === 'event') {
+      if (q3 === 'opening') return q4 === 'A' ? 45 : q4 === 'C' ? 45 : q4 === 'D' ? 20 : 20;
+      if (q3 === 'bgm') return q4 === 'A' ? 28 : q4 === 'B' ? 90 : q4 === 'C' ? 45 : 20;
+    }
+    if (q2 === 'exhibition') {
+      if (q3 === 'bgm') return q4 === 'A' ? 73 : q4 === 'B' ? 90 : q4 === 'C' ? 86 : 20;
+      if (q3 === 'promo') return q4 === 'A' ? 86 : q4 === 'C' ? 86 : q4 === 'D' ? 81 : 73;
+    }
+    if (q2 === 'founding') {
+      if (q3 === 'hardship') return q4 === 'powerful' ? 81 : 80;
+      if (q3 === 'steady') return q4 === 'powerful' ? 81 : 25;
+    }
+    if (q2 === 'product') {
+      if (q3 === 'tangible') return q4 === 'A' ? 20 : 25;
+      if (q3 === 'intangible') return q4 === 'A' ? 20 : 87;
+    }
+    if (q2 === 'bgm') return q4 === 'A' ? 90 : q4 === 'C' ? 45 : q4 === 'D' ? 20 : 90;
+    if (q2 === 'greeting') return q4 === 'A' ? 95 : q4 === 'C' ? 45 : q4 === 'D' ? 36 : 95;
+  }
+
+  const def = { A: 36, B: 23, C: 18, D: 17, emotional: 18, powerful: 36 };
+  return def[q4] || 36;
+}
+
+function showResult(setNum) {
+  // 診断画面を隠す
+  document.getElementById('diagnostic').classList.remove('active');
+  document.getElementById('backBtn').classList.remove('visible');
+
+  // 読み込み画面を表示
+  const loadingScreen = document.getElementById('loadingScreen');
+  const barFill = document.getElementById('loadingBarFill');
+  const pctEl = document.getElementById('loadingPct');
+  const msgEl = document.getElementById('loadingMsg');
+  loadingScreen.classList.add('active');
+  scrollToTop();
+
+  // メッセージリスト
+  const messages = [
+    '想いを分析しています…',
+    '理念を音楽に変換中…',
+    'サウンドイメージを構築中…',
+    'あなただけの音楽を見つけています…',
+    'もうすぐです…'
+  ];
+
+  // 不規則な進み方のステップを生成
+  const steps = [];
+  let current = 0;
+  while (current < 100) {
+    const jump = Math.random() < 0.3
+      ? Math.floor(Math.random() * 3 + 1)   // 小刻み
+      : Math.floor(Math.random() * 12 + 4); // 大きめジャンプ
+    current = Math.min(current + jump, 100);
+    const delay = Math.random() * 180 + 40;
+    steps.push({ value: current, delay });
+  }
+
+  // アニメーション実行
+  let stepIndex = 0;
+  let totalDelay = 0;
+  const minDuration = 2800;
+
+  // 最小時間を確保するためdelayを調整
+  const rawTotal = steps.reduce((sum, s) => sum + s.delay, 0);
+  const scale = rawTotal < minDuration ? minDuration / rawTotal : 1;
+
+  steps.forEach((step, i) => {
+    totalDelay += step.delay * scale;
+    setTimeout(() => {
+      barFill.style.width = step.value + '%';
+      pctEl.textContent = step.value + '%';
+      // メッセージ切り替え
+      const msgIndex = Math.floor((step.value / 100) * (messages.length - 1));
+      msgEl.textContent = messages[Math.min(msgIndex, messages.length - 1)];
+    }, totalDelay);
+  });
+
+  // 100%到達後に結果表示
+  setTimeout(() => {
+    loadingScreen.classList.remove('active');
+
+    const wrap = document.getElementById('result');
+    wrap.classList.add('active');
+
+    const d = results[setNum] || {
+      title: 'あなただけの<em>オリジナルサウンド</em>',
+      desc: 'ヒアリングを通じて、貴社にしか作れない楽曲をご提案します。',
+      tags: ['オーダーメイド', 'ヒアリング', '完全オリジナル']
+    };
+
+    document.getElementById('resultTitle').innerHTML = d.title.replace(/\n/g, '<br>');
+    document.getElementById('resultDesc').textContent = d.desc;
+
+    const tagsEl = document.getElementById('resultTags');
+    tagsEl.innerHTML = '';
+    d.tags.forEach(t => {
+      const s = document.createElement('span');
+      s.className = 'result-tag';
+      s.textContent = '# ' + t;
+      tagsEl.appendChild(s);
+    });
+
+    document.getElementById('progressFill').style.width = '100%';
+    document.getElementById('progressText').textContent = '完了';
+    scrollToTop();
+  }, totalDelay + 600);
+}
+
+function retryDiagnostic() {
+  state = { q1: null, q2: null, q3: null, q4: null, history: [], totalQ: 4, casualRoute: false, company: '', industry: '', name: '' };
+  clearGlow();
+  document.getElementById('result').classList.remove('active');
+  document.getElementById('diagnostic').classList.add('active');
+  document.querySelectorAll('.question-wrap').forEach(el => el.classList.remove('active'));
+  document.getElementById('q0').classList.add('active');
+  // プルダウンをリセット
+  const sel = document.getElementById('regIndustry');
+  if (sel) sel.value = '';
+  updateProgress(0, 4);
+  document.getElementById('backBtn').classList.remove('visible');
+  scrollToTop();
+}
+
+// Q1〜Q4の日本語ラベル変換
+const q1Labels = { trust: '信頼・誠実', challenge: '挑戦・成長', people: '人・チームワーク', quality: '品質・こだわり', community: '地域・社会貢献', casual: '気軽に試してみた' };
+const q2Labels = { corporatePV: 'コーポレートPV', recruitment: '採用動画', anniversary: '周年記念式典', event: '社内イベント', exhibition: '展示会ブース', founding: '創業ストーリー動画', product: '商品・サービス紹介動画', bgm: '社内BGM', greeting: '代表挨拶動画' };
+const q3Labels = {
+  bright: '明るく元気な人', sincere: '誠実で真面目な人', strong: '力強く頼れる人',
+  adventurous: '新しいことに飛び込める人', positive: '明るく前向きな人', resilient: '困難を乗り越えられる人',
+  leader: '明るくチームを引っ張れる人', supporter: '温かく周りを支えられる人', social: '誰とでも仲良くなれる人',
+  detail: '細部までこだわれる人', individual: '個性と技術で勝負できる人', passionate: '情熱を持って極められる人',
+  friendly: '地域に溶け込める親しみやすい人', active: '元気で行動力のある人', contributor: '情熱を持って社会に貢献できる人',
+  recruit: '採用・会社の認知向け', investor: '取引先・投資家向け',
+  opening: '開会・オープニング', calm: '落ち着いた式典の場面', dinner: '食事・歓談中',
+  bgm: 'イベント中のBGMとして', promo: '紹介動画・呼び込みに使う',
+  hardship: '困難を乗り越えながら今に至る', steady: '着実に積み上げて今に至る',
+  tangible: '形のある商品', intangible: '形のないサービス',
+  casual_A: '元気が出る感じ', casual_B: '穏やかな感じ', casual_C: '感動する感じ', casual_D: 'かっこいい感じ'
+};
+const q4Labels = { A: '明るく前向きな雰囲気', B: '落ち着いた穏やかな雰囲気', C: '壮大で感動的な雰囲気', D: 'スタイリッシュで現代的な雰囲気', emotional: '感動する感じ', powerful: '力強く前向きな感じ' };
+
+function buildResultText(setNum) {
+  const d = results[setNum];
+  const titleClean = d ? d.title.replace(/\n/g, '').replace(/<em>/g, '').replace(/<\/em>/g, '') : 'オリジナルサウンド';
+
+  let lines = ['【Soulound 診断結果】', ''];
+  if (state.company) lines.push('■ 会社名：' + state.company);
+  if (state.industry) lines.push('■ 業種：' + state.industry);
+  if (state.name) lines.push('■ お名前：' + state.name);
+  if (state.company || state.industry || state.name) lines.push('');
+  if (state.q1) lines.push('■ 大切にしていること：' + (q1Labels[state.q1] || state.q1));
+  if (state.q2 && !state.casualRoute) lines.push('■ 使用場面：' + (q2Labels[state.q2] || state.q2));
+  if (state.q3 && !state.casualRoute) lines.push('■ 詳細：' + (q3Labels[state.q3] || state.q3));
+  if (state.q4 && !state.casualRoute) lines.push('■ 雰囲気：' + (q4Labels[state.q4] || state.q4));
+  if (state.casualRoute && state.q3) lines.push('■ 好みの雰囲気：' + (q3Labels[state.q3] || state.q3));
+  lines.push('');
+  lines.push('▶ 提案曲イメージ：' + titleClean);
+  lines.push('');
+  lines.push('この結果を踏まえてヒアリングさせてください！');
+  return lines.join('\n');
+}
+
+function copyAndOpenLine(e) {
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  const setNum = getResult(state.q1, state.q2, state.q3, state.q4);
+  const text = buildResultText(setNum);
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+  } else {
+    fallbackCopy(text);
+  }
+
+  document.getElementById('popupResultText').textContent = text;
+  document.getElementById('copyPopup').classList.add('active');
+  return false;
+}
+
+function fallbackCopy(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try { document.execCommand('copy'); } catch(e) {}
+  document.body.removeChild(ta);
+}
+
+function closePopup() {
+  document.getElementById('copyPopup').classList.remove('active');
+}
+
+// ===== LP =====
+
+function initWave() {
+  const canvas = document.getElementById('waveCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let w, h, animId;
+
+  function resize() {
+    w = canvas.width = canvas.offsetWidth;
+    h = canvas.height = canvas.offsetHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const waves = [
+    { amp: 0.06, freq: 0.008, speed: 0.012, phase: 0, color: 'rgba(201,168,76,0.4)' },
+    { amp: 0.04, freq: 0.012, speed: 0.018, phase: 2, color: 'rgba(201,168,76,0.25)' },
+    { amp: 0.03, freq: 0.006, speed: 0.008, phase: 4, color: 'rgba(201,168,76,0.15)' },
+    { amp: 0.05, freq: 0.015, speed: 0.022, phase: 1, color: 'rgba(240,237,232,0.08)' },
+  ];
+
+  function draw() {
+    ctx.clearRect(0, 0, w, h);
+    waves.forEach(wave => {
+      wave.phase += wave.speed;
+      ctx.beginPath();
+      ctx.moveTo(0, h / 2);
+      for (let x = 0; x <= w; x += 2) {
+        const y = h / 2
+          + Math.sin(x * wave.freq + wave.phase) * h * wave.amp
+          + Math.sin(x * wave.freq * 0.5 + wave.phase * 1.3) * h * wave.amp * 0.5;
+        ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = wave.color;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    });
+    animId = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function initOpening() {
+  setTimeout(() => {
+    document.getElementById('lpLogo').classList.add('visible');
+    document.getElementById('lpSub').classList.add('visible');
+  }, 300);
+  setTimeout(() => {
+    document.getElementById('lpScroll').classList.add('visible');
+  }, 2000);
+}
+
+function initScrollReveal() {
+  const reveals = document.querySelectorAll('.lp-reveal');
+  const items = document.querySelectorAll('.lp-reveal-item');
+  const soundBars = document.querySelectorAll('.lp-sound-bar');
+  const barWidths = ['65%', '55%', '80%', '70%', '60%', '45%'];
+
+  // 背景色変化の設定
+  const bgSections = [
+    { id: 'secCatch',  cls: 'bg-catch' },
+    { id: 'secScene',  cls: 'bg-scene' },
+    { id: 'secSound',  cls: 'bg-sound' },
+    { id: 'secWhy',    cls: 'bg-why' },
+    { id: 'secPrice',  cls: 'bg-price' },
+    { id: 'secCta',    cls: 'bg-cta' },
+  ];
+
+  const bgClasses = ['bg-scene','bg-sound','bg-why','bg-price','bg-cta'];
+
+  const bgObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const sec = bgSections.find(s => s.id === entry.target.id);
+        if (sec) {
+          bgClasses.forEach(c => document.body.classList.remove(c));
+          if (sec.cls !== 'bg-catch') document.body.classList.add(sec.cls);
+        }
+      }
+    });
+  }, { threshold: 0.25 });
+
+  bgSections.forEach(s => {
+    const el = document.getElementById(s.id);
+    if (el) bgObserver.observe(el);
+  });
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); }
+    });
+  }, { threshold: 0.15 });
+
+  const itemObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const idx = Array.from(items).indexOf(entry.target) % 6;
+        setTimeout(() => entry.target.classList.add('visible'), idx * 100);
+        itemObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  const barObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const idx = Array.from(soundBars).indexOf(entry.target);
+        setTimeout(() => { entry.target.style.width = barWidths[idx] || '60%'; }, idx * 120);
+        barObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.3 });
+
+  reveals.forEach(el => observer.observe(el));
+  items.forEach(el => itemObserver.observe(el));
+  soundBars.forEach(el => barObserver.observe(el));
+}
+
+if (document.getElementById('lp')) {
+  initWave();
+  initOpening();
+  initScrollReveal();
+}
+
+function startDiagnostic() {
+  const lp = document.getElementById('lp');
+  if (lp) lp.style.display = 'none';
+  document.getElementById('hero').style.display = 'none';
+  document.getElementById('diagnostic').classList.add('active');
+  state.casualRoute = false;
+  state.totalQ = 4;
+  // Q0（会社情報）から開始
+  document.querySelectorAll('.question-wrap').forEach(el => el.classList.remove('active'));
+  document.getElementById('q0').classList.add('active');
+  document.getElementById('backBtn').classList.remove('visible');
+  updateProgress(0, 4);
+  scrollToTop();
+}
+
+function selectIndustryFromDropdown(val) {
+  state.industry = val;
+}
+
+function submitIndustry() {
+  if (!state.industry) {
+    const sel = document.getElementById('regIndustry');
+    sel.style.borderColor = 'rgba(224,112,112,0.6)';
+    setTimeout(() => sel.style.borderColor = '', 1500);
+    return;
+  }
+  push(0);
+  showQ(1);
+}
+
+function goHome() {
+  state = { q1: null, q2: null, q3: null, q4: null, history: [], totalQ: 4, casualRoute: false, company: '', industry: '', name: '' };
+  clearGlow();
+  document.getElementById('diagnostic').classList.remove('active');
+  document.getElementById('result').classList.remove('active');
+  document.getElementById('hero').style.display = 'none';
+  const lp = document.getElementById('lp');
+  if (lp) lp.style.display = '';
+  document.querySelectorAll('.question-wrap').forEach(el => el.classList.remove('active'));
+  document.getElementById('q1').classList.add('active');
+  updateProgress(0, 4);
+  scrollToTop();
+}
+
+// ===== LP END =====
+updateProgress(0, 4);
+</script>
+</body>
+</html>
