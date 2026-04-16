@@ -1,19 +1,18 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<title>Soulound — 想いを、音楽に。</title>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-HFQ0QKBKN5"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
   gtag('config', 'G-HFQ0QKBKN5');
 </script>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="color-scheme" content="dark">
-<title>Soulound — 想いを、音楽に。</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Noto+Sans+JP:wght@300;400&family=Montserrat:wght@200;300;400&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -1508,9 +1507,9 @@ function selectQ1(val) {
   push(1);
   state.q1 = val;
   setGlow(val);
+  gtag('event', 'q1_selected', { value: val });
 
   if (val === 'casual') {
-    // 気軽ルート: Q2スキップ → トーン選択（Q3スロットを使用）
     state.casualRoute = true;
     state.totalQ = 2;
     updateProgress(1, 2);
@@ -1526,6 +1525,7 @@ function selectQ1(val) {
 function selectQ2(val) {
   push(2);
   state.q2 = val;
+  gtag('event', 'q2_selected', { value: val });
 
   const sub = getSubQuestion(state.q1, val);
   if (sub) {
@@ -1550,6 +1550,7 @@ function selectQ2(val) {
 function selectQ3(val) {
   push(3);
   state.q3 = val;
+  gtag('event', 'q3_selected', { value: val });
 
   if (state.casualRoute) {
     updateProgress(2, 2);
@@ -1565,6 +1566,7 @@ function selectQ3(val) {
 function selectQ4(val) {
   push(4);
   state.q4 = val;
+  gtag('event', 'q4_selected', { value: val });
   showResult(getResult(state.q1, state.q2, state.q3, val));
 }
 
@@ -1914,6 +1916,14 @@ function getResult(q1, q2, q3, q4) {
 }
 
 function showResult(setNum) {
+  // GA: 診断結果到達
+  gtag('event', 'result_reached', {
+    set_number: setNum,
+    q1: state.q1,
+    q2: state.q2,
+    industry: state.industry
+  });
+
   // 診断画面を隠す
   document.getElementById('diagnostic').classList.remove('active');
   document.getElementById('backBtn').classList.remove('visible');
@@ -2054,6 +2064,11 @@ function buildResultText(setNum) {
 
 function copyAndOpenLine(e) {
   if (e) { e.preventDefault(); e.stopPropagation(); }
+  // GA: LINEボタンタップ
+  gtag('event', 'line_button_clicked', {
+    q1: state.q1,
+    industry: state.industry
+  });
   const setNum = getResult(state.q1, state.q2, state.q3, state.q4);
   const text = buildResultText(setNum);
 
@@ -2235,6 +2250,8 @@ function submitIndustry() {
     setTimeout(() => sel.style.borderColor = '', 1500);
     return;
   }
+  // GA: 業種選択完了
+  gtag('event', 'industry_selected', { industry: state.industry });
   push(0);
   showQ(1);
 }
