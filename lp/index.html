@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soulound｜お店・教室の想いを、音にのせて。</title>
+<meta name="description" content="子ども教室・サロン・飲食店のためのオリジナルテーマ曲/サウンドロゴ制作。あなたのお店の“らしさ”を、お客さまの記憶に残るメロディに。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=M+PLUS+Rounded+1c:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#FFF6E9;
+  --cream-light:#FFFBF2;
+  --coral:#F0795A;
+  --coral-deep:#E05A3A;
+  --teal:#2E8B7A;
+  --teal-deep:#1F6B5D;
+  --gold:#E8B14E;
+  --ink:#4A3F35;
+  --ink-soft:#7A6E61;
+  --line-green:#06C755;
+  --line-green-deep:#05A847;
+  --radius-lg:28px;
+  --radius-md:18px;
+  --shadow:0 8px 30px rgba(120,90,60,.12);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;overflow-x:clip}
+body{
+  font-family:'M PLUS Rounded 1c',sans-serif;
+  background:var(--cream);
+  color:var(--ink);
+  line-height:1.9;
+  font-size:16px;
+  overflow-x:hidden;
+}
+h1,h2,h3{font-family:'Zen Maru Gothic',sans-serif;line-height:1.5}
+img{max-width:100%;display:block}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--teal);outline-offset:3px;border-radius:6px}
+
+/* ---------- 共通パーツ ---------- */
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+.section{padding:72px 0}
+.sec-head{text-align:center;margin-bottom:44px}
+.sec-eyebrow{
+  display:inline-block;color:var(--teal);font-weight:700;font-size:.95rem;
+  letter-spacing:.12em;margin-bottom:10px;
+}
+.sec-title{
+  font-size:clamp(1.5rem,4.2vw,2.1rem);font-weight:900;
+  display:inline-block;position:relative;padding-bottom:14px;
+}
+.sec-title::after{
+  content:"";position:absolute;left:50%;bottom:0;transform:translateX(-50%);
+  width:72px;height:6px;border-radius:3px;
+  background:linear-gradient(90deg,var(--coral),var(--gold));
+}
+.num-badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:44px;height:44px;border-radius:50%;
+  background:var(--coral);color:#fff;font-weight:900;font-size:1.05rem;
+  margin-right:12px;vertical-align:middle;flex:none;
+}
+.note-deco{position:absolute;font-size:1.6rem;opacity:.55;pointer-events:none;user-select:none}
+
+/* ---------- 画像プレースホルダ ---------- */
+.img-ph{
+  background:repeating-linear-gradient(45deg,#F3E6CF,#F3E6CF 12px,#EFDFC4 12px,#EFDFC4 24px);
+  border:2px dashed #D9C29A;border-radius:var(--radius-md);
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  color:#A08D6F;font-size:.85rem;font-weight:700;padding:12px;line-height:1.6;
+}
+
+.nowrap{white-space:nowrap}
+.hero-visual img{width:100%;border-radius:36px;box-shadow:var(--shadow)}
+.target-card img{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:var(--radius-md)}
+.profile-photo img{width:100%;height:100%;min-height:300px;object-fit:cover}
+
+/* ---------- ヘッダー ---------- */
+header{
+  position:sticky;top:0;z-index:50;
+  background:rgba(255,251,242,.92);backdrop-filter:blur(8px);
+  border-bottom:1px solid rgba(217,194,154,.4);
+}
+.header-inner{
+  max-width:1080px;margin:0 auto;padding:12px 20px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+}
+.logo{font-family:'Zen Maru Gothic',sans-serif;font-weight:900;font-size:1.5rem;line-height:1.2;text-decoration:none}
+.logo .so{color:var(--teal)}
+.logo .und{color:var(--coral)}
+.logo small{display:block;font-size:.62rem;font-weight:700;color:var(--ink-soft);letter-spacing:.05em}
+.header-cta{
+  background:var(--coral);color:#fff;text-decoration:none;font-weight:700;
+  padding:10px 20px;border-radius:999px;font-size:.9rem;white-space:nowrap;
+  transition:transform .2s,box-shadow .2s;box-shadow:0 4px 14px rgba(240,121,90,.35);
+}
+.header-cta:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(240,121,90,.45)}
+
+/* ---------- ヒーロー ---------- */
+.hero{position:relative;padding:64px 0 80px;overflow:hidden}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:center}
+.hero-tag{
+  display:inline-block;background:var(--teal);color:#fff;font-weight:700;
+  font-size:.85rem;padding:7px 18px;border-radius:6px;margin-bottom:22px;
+  position:relative;
+}
+.hero h1{
+  font-size:clamp(1.7rem,5vw,2.7rem);font-weight:900;letter-spacing:.02em;
+  margin-bottom:24px;
+}
+.hero h1 .accent{color:var(--coral-deep);font-size:1.18em}
+.hero h1 .accent-q{color:var(--coral-deep)}
+.hero-lead{color:var(--ink-soft);font-size:1rem;margin-bottom:32px;max-width:34em}
+.hero-visual{position:relative}
+.hero-visual .img-ph{aspect-ratio:4/4.4;border-radius:36px}
+
+/* 想起率バッジ + 3つの理由 */
+.hero-sub{display:grid;grid-template-columns:280px 1fr;gap:36px;align-items:center;margin-top:56px}
+.badge-9x{
+  position:relative;aspect-ratio:1/1;border-radius:50%;
+  background:radial-gradient(circle at 50% 40%,#FFF3DC,#FCE8C8);
+  box-shadow:var(--shadow);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center;padding:28px;
+  border:3px solid rgba(232,177,78,.5);
+}
+.badge-9x .ribbon{
+  background:var(--coral);color:#fff;font-weight:700;font-size:.78rem;
+  padding:4px 16px;border-radius:999px;margin-bottom:6px;
+}
+.badge-9x .label{font-weight:700;font-size:1rem}
+.badge-9x .big{
+  font-family:'Zen Maru Gothic',sans-serif;font-weight:900;
+  font-size:4.2rem;line-height:1;color:var(--coral-deep);
+}
+.badge-9x .big small{font-size:1.6rem}
+.badge-9x .src{font-size:.62rem;color:var(--ink-soft);margin-top:8px;line-height:1.5}
+.reasons{display:flex;flex-direction:column;gap:22px}
+.reason{display:flex;gap:16px;align-items:flex-start}
+.reason-icon{
+  flex:none;width:52px;height:52px;border-radius:50%;
+  background:#FDEEDD;display:flex;align-items:center;justify-content:center;
+  font-size:1.4rem;
+}
+.reason h3{font-size:1.08rem;font-weight:900;margin-bottom:4px;color:var(--teal-deep)}
+.reason p{font-size:.92rem;color:var(--ink-soft)}
+
+/* ---------- 反復のしくみ ---------- */
+.bg-white{background:var(--cream-light)}
+.flow-card{
+  background:#fff;border-radius:var(--radius-lg);box-shadow:var(--shadow);
+  padding:48px 32px;position:relative;
+}
+.flow-sub{text-align:center;font-weight:700;color:var(--ink-soft);margin-bottom:36px}
+.repeat-flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:8px;align-items:start}
+.flow-node{text-align:center}
+.flow-node .icon{
+  width:110px;height:110px;margin:0 auto 16px;border-radius:50%;
+  background:#FDF3E3;display:flex;align-items:center;justify-content:center;
+}
+.flow-node .icon svg{width:62px;height:62px}
+.flow-node .tag{
+  display:inline-block;background:var(--teal);color:#fff;font-weight:700;
+  font-size:.85rem;padding:5px 16px;border-radius:6px;margin-bottom:8px;
+}
+.flow-node small{display:block;font-size:.8rem;color:var(--ink-soft)}
+.wave-arrow{display:flex;align-items:center;height:110px}
+.wave-arrow svg{width:64px;height:40px;overflow:visible}
+.wave-arc{
+  stroke:var(--coral);stroke-width:3;fill:none;stroke-linecap:round;
+  opacity:0;animation:wavePulse 2.4s infinite;
+}
+.wave-arc:nth-child(2){animation-delay:.4s}
+.wave-arc:nth-child(3){animation-delay:.8s}
+@keyframes wavePulse{
+  0%{opacity:0;transform:translateX(-4px)}
+  35%{opacity:.9}
+  100%{opacity:0;transform:translateX(10px)}
+}
+.flow-loop{
+  margin-top:32px;text-align:center;font-weight:700;color:var(--teal-deep);
+  border-top:2px dashed rgba(46,139,122,.35);padding-top:22px;
+}
+
+/* ---------- 想起率グラフ ---------- */
+.recall-grid{display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:center}
+.chart{
+  background:#fff;border-radius:var(--radius-lg);box-shadow:var(--shadow);
+  padding:40px 36px 28px;display:flex;justify-content:center;gap:56px;
+  align-items:flex-end;height:340px;
+}
+.bar-group{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+.bar-value{font-weight:900;font-family:'Zen Maru Gothic',sans-serif;font-size:1.5rem;margin-bottom:6px}
+.bar{
+  width:84px;border-radius:12px 12px 0 0;transform-origin:bottom;
+  transform:scaleY(0);transition:transform 1s cubic-bezier(.2,.7,.3,1);
+}
+.in-view .bar{transform:scaleY(1)}
+.bar.gray{background:#CFC4B4;height:26px}
+.bar.coral{background:linear-gradient(180deg,var(--coral),var(--coral-deep));height:218px;transition-delay:.25s}
+.bar-label{font-size:.85rem;font-weight:700;margin-top:12px;text-align:center;line-height:1.5}
+.recall-text h3{font-size:1.3rem;font-weight:900;margin-bottom:14px;color:var(--teal-deep)}
+.recall-text p{color:var(--ink-soft);font-size:.95rem;margin-bottom:14px}
+.recall-src{
+  font-size:.74rem;color:var(--ink-soft);background:#FDF3E3;
+  border-radius:10px;padding:12px 16px;line-height:1.7;
+}
+
+/* ---------- ターゲットカード ---------- */
+.target-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.target-card{
+  background:#fff;border-radius:var(--radius-lg);box-shadow:var(--shadow);
+  padding:26px 22px;border-top:6px solid var(--teal);
+  display:flex;flex-direction:column;gap:14px;
+}
+.target-card:nth-child(2){border-top-color:var(--coral)}
+.target-card:nth-child(3){border-top-color:var(--gold)}
+.target-card h3{font-size:1.12rem;font-weight:900;display:flex;align-items:center;gap:10px}
+.target-card h3 .t-icon{
+  width:40px;height:40px;border-radius:50%;background:#FDF3E3;flex:none;
+  display:flex;align-items:center;justify-content:center;font-size:1.15rem;
+}
+.target-card small{color:var(--ink-soft);font-size:.8rem;display:block;margin-top:-8px}
+.target-card .img-ph{aspect-ratio:16/10}
+.checks{list-style:none;display:flex;flex-direction:column;gap:8px}
+.checks li{
+  font-size:.9rem;display:flex;gap:8px;align-items:flex-start;line-height:1.6;
+}
+.checks li::before{
+  content:"✓";flex:none;width:20px;height:20px;border-radius:5px;
+  background:var(--teal);color:#fff;font-size:.75rem;font-weight:900;
+  display:flex;align-items:center;justify-content:center;margin-top:3px;
+}
+.target-foot{
+  margin-top:36px;text-align:center;font-weight:700;
+  background:#fff;border:2px dashed var(--gold);border-radius:999px;
+  padding:14px 24px;max-width:640px;margin-left:auto;margin-right:auto;
+  font-size:.95rem;
+}
+
+/* ---------- 制作の流れ ---------- */
+.steps{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:10px;align-items:start}
+.step{text-align:center}
+.step .circle{
+  width:150px;height:150px;margin:0 auto 18px;border-radius:50%;
+  background:#fff;box-shadow:var(--shadow);position:relative;
+  display:flex;align-items:center;justify-content:center;font-size:3rem;
+}
+.step .circle .n{
+  position:absolute;top:-6px;left:-6px;width:42px;height:42px;border-radius:50%;
+  background:var(--coral);color:#fff;font-weight:900;font-size:1rem;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Zen Maru Gothic',sans-serif;
+}
+.step h3{font-size:1.15rem;font-weight:900;color:var(--teal-deep);margin-bottom:6px}
+.step p{font-size:.88rem;color:var(--ink-soft);max-width:240px;margin:0 auto}
+.step-arrow{display:flex;align-items:center;height:150px;color:var(--coral);font-size:1.5rem;font-weight:900}
+.step-note{
+  margin-top:36px;text-align:center;background:#fff;border-radius:999px;
+  box-shadow:var(--shadow);padding:14px 28px;font-weight:700;font-size:.92rem;
+  max-width:560px;margin-left:auto;margin-right:auto;
+}
+.step-note::before{content:"♪ ";color:var(--coral)}
+
+/* ---------- プロフィール ---------- */
+.profile-card{
+  background:#fff;border-radius:var(--radius-lg);box-shadow:var(--shadow);
+  display:grid;grid-template-columns:minmax(240px,340px) minmax(0,1fr);overflow:hidden;
+}
+.profile-card > *{min-width:0}
+.profile-body p,.profile-body h3{overflow-wrap:break-word}
+.profile-photo .img-ph{height:100%;min-height:300px;border-radius:0;border:none}
+.profile-body{padding:36px 36px 30px}
+.profile-body .role{font-size:.85rem;color:var(--ink-soft);font-weight:700}
+.profile-body h3{font-size:1.7rem;font-weight:900;margin:4px 0 16px}
+.profile-body h3 .kana{font-size:.82rem;color:var(--ink-soft);font-weight:700;margin-left:10px;letter-spacing:.06em}
+.profile-body p{font-size:.93rem;color:var(--ink-soft);margin-bottom:20px}
+.profile-tags{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px dashed #E3D5BC;padding-top:18px}
+.profile-tags div{
+  text-align:center;font-size:.82rem;font-weight:700;line-height:1.6;
+  padding:0 10px;
+}
+.profile-tags div + div{border-left:1px dashed #E3D5BC}
+.profile-tags .p-icon{font-size:1.5rem;display:block;margin-bottom:6px}
+
+/* ---------- CTA ---------- */
+.cta-section{padding:80px 0 64px}
+.cta-card{
+  background:#fff;border-radius:var(--radius-lg);box-shadow:var(--shadow);
+  padding:52px 28px;text-align:center;position:relative;overflow:hidden;
+}
+.cta-flag{
+  display:inline-block;background:var(--coral);color:#fff;font-weight:700;
+  font-size:.9rem;padding:7px 26px;border-radius:999px;margin-bottom:18px;
+}
+.cta-card h2{font-size:clamp(1.25rem,3.6vw,1.7rem);font-weight:900;margin-bottom:30px}
+.cta-card h2 .accent{color:var(--coral-deep)}
+.line-btn{
+  display:inline-flex;align-items:center;gap:14px;text-decoration:none;
+  background:linear-gradient(180deg,var(--line-green),var(--line-green-deep));
+  color:#fff;font-weight:900;font-size:clamp(1.05rem,3vw,1.4rem);
+  padding:22px 40px;border-radius:999px;
+  box-shadow:0 10px 26px rgba(6,199,85,.4),inset 0 2px 0 rgba(255,255,255,.35);
+  transition:transform .2s,box-shadow .2s;font-family:'Zen Maru Gothic',sans-serif;
+}
+.line-btn:hover{transform:translateY(-3px);box-shadow:0 14px 32px rgba(6,199,85,.5),inset 0 2px 0 rgba(255,255,255,.35)}
+.line-btn .line-mark{
+  background:#fff;color:var(--line-green);border-radius:14px;
+  font-weight:900;font-size:.95rem;padding:8px 12px;letter-spacing:.02em;flex:none;
+}
+.cta-points{
+  display:flex;flex-wrap:wrap;justify-content:center;gap:10px 22px;margin-top:24px;
+  font-size:.88rem;font-weight:700;color:var(--teal-deep);
+}
+.cta-points span::before{content:"✓ ";color:var(--line-green-deep);font-weight:900}
+.cta-gift{
+  margin-top:28px;font-size:.9rem;font-weight:700;
+  border-top:1px dashed #E3D5BC;padding-top:20px;
+}
+.cta-gift::before{content:"🎁 ";font-size:1.1rem}
+
+footer{
+  background:var(--teal-deep);color:#EAF4F0;text-align:center;
+  padding:30px 20px;font-size:.82rem;
+}
+footer .f-logo{font-family:'Zen Maru Gothic',sans-serif;font-weight:900;font-size:1.2rem;margin-bottom:6px}
+
+/* ---------- アニメーション ---------- */
+.fade-up{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}
+.fade-up.in-view{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .fade-up{opacity:1;transform:none}
+  .bar{transform:scaleY(1)}
+  html{scroll-behavior:auto}
+}
+
+/* ---------- レスポンシブ ---------- */
+@media (max-width:900px){
+  .hero-grid{grid-template-columns:1fr;gap:32px}
+  .hero-visual{max-width:480px;margin:0 auto}
+  .hero-sub{grid-template-columns:1fr;justify-items:center}
+  .badge-9x{width:min(280px,80vw)}
+  .profile-card{grid-template-columns:1fr}
+  .profile-photo .img-ph,.profile-photo img{min-height:0;height:auto;aspect-ratio:16/10}
+  .recall-grid{grid-template-columns:1fr}
+}
+@media (max-width:760px){
+  .section{padding:56px 0}
+  .profile-body{padding:28px 20px 24px}
+  .repeat-flow,.steps{grid-template-columns:1fr}
+  .wave-arrow,.step-arrow{height:auto;justify-content:center;transform:rotate(90deg);margin:2px auto}
+  .target-grid{grid-template-columns:1fr;max-width:440px;margin:0 auto}
+  .chart{gap:36px;height:300px;padding:32px 20px 24px}
+  .bar{width:68px}
+  .bar.coral{height:184px}
+  .profile-tags{grid-template-columns:1fr;gap:14px}
+  .profile-tags div + div{border-left:none;border-top:1px dashed #E3D5BC;padding-top:14px}
+  .header-cta{font-size:.8rem;padding:8px 14px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a class="logo" href="#top" aria-label="Soulound トップへ">
+      <span class="so">Soul</span><span class="und">ound</span>
+      <small>お店・教室の想いを、音にのせて。</small>
+    </a>
+    <a class="header-cta" href="https://lin.ee/9qzSVhh">お問い合わせ</a>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- ヒーロー -->
+<section class="hero">
+  <span class="note-deco" style="top:8%;left:4%">🎵</span>
+  <span class="note-deco" style="top:14%;right:6%">♪</span>
+  <span class="note-deco" style="bottom:10%;left:8%">♪</span>
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <span class="hero-tag">中小店舗・教室のための オリジナルテーマ曲 / サウンドロゴ制作</span>
+        <h1>
+          あなたのお店・教室の<br>
+          <span class="accent-q">“</span><span class="accent">らしさ</span><span class="accent-q">”</span>を音にして、<br>
+          お客さまの心に残る<br>
+          <span class="accent">特別なメロディ</span>を。
+        </h1>
+        <p class="hero-lead">
+          Soulound は、子ども教室・サロン・飲食店などの想いを丁寧にヒアリングし、あなたのブランドにぴったりのオリジナルテーマ曲やサウンドロゴを制作します。日常の中で自然と耳に残り、何度でも思い出してもらえる音楽を。
+        </p>
+        <a class="line-btn" href="https://lin.ee/9qzSVhh">
+          <span class="line-mark">LINE</span>
+          無料相談・資料を受け取る →
+        </a>
+      </div>
+      <div class="hero-visual">
+        <img src="images/hero.jpg" alt="音楽が流れる温かいカフェで、店主とお客さんが笑顔で過ごす様子のイラスト">
+      </div>
+    </div>
+
+    <div class="hero-sub">
+      <div class="badge-9x fade-up">
+        <span class="ribbon">オリジナルの音で</span>
+        <span class="label">ブランドの想起率</span>
+        <span class="big">9<small>倍</small></span>
+        <span class="src">※米SoundOut Index 2025<br>消費者7万件調査より</span>
+      </div>
+      <div class="reasons">
+        <div class="reason fade-up">
+          <div class="reason-icon">🎵</div>
+          <div>
+            <h3>記憶に残り、選ばれる理由に</h3>
+            <p>印象的なメロディが、お店・教室の名前や雰囲気を自然と思い出させます。</p>
+          </div>
+        </div>
+        <div class="reason fade-up">
+          <div class="reason-icon">❤️</div>
+          <div>
+            <h3>想いを伝え、ファンをつくる</h3>
+            <p>コンセプトや想いを音楽に込めて、共感を生み、ファンとのつながりを深めます。</p>
+          </div>
+        </div>
+        <div class="reason fade-up">
+          <div class="reason-icon">🔊</div>
+          <div>
+            <h3>さまざまなシーンで活躍</h3>
+            <p>店内BGM・動画・SNS・広告など、幅広い用途でご利用いただけます。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 01 反復のしくみ -->
+<section class="section bg-white">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 class="sec-title"><span class="num-badge">01</span>反復のしくみ</h2>
+    </div>
+    <div class="flow-card fade-up">
+      <p class="flow-sub">投稿のたびに音が流れる ＝ CMと同じ反復</p>
+      <div class="repeat-flow">
+        <div class="flow-node">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 64 64"><rect x="18" y="6" width="28" height="52" rx="6" fill="#2E8B7A"/><rect x="22" y="12" width="20" height="36" rx="2" fill="#FFF6E9"/><circle cx="32" cy="53" r="2.4" fill="#FFF6E9"/><path d="M27 26h10M27 31h10M27 36h6" stroke="#F0795A" stroke-width="2.4" stroke-linecap="round"/></svg>
+          </div>
+          <span class="tag">あなたの投稿</span>
+          <small>SNSに投稿するたび<br>(動画・リール・写真)</small>
+        </div>
+        <div class="wave-arrow" aria-hidden="true">
+          <svg viewBox="0 0 64 40">
+            <path class="wave-arc" d="M14 8 q10 12 0 24"/>
+            <path class="wave-arc" d="M28 4 q14 16 0 32"/>
+            <path class="wave-arc" d="M42 0 q18 20 0 40"/>
+          </svg>
+        </div>
+        <div class="flow-node">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 64 64"><path d="M8 24h48l-4-12H12z" fill="#F0795A"/><path d="M8 24c0 4 3 7 7 7s7-3 7-7c0 4 3 7 7 7s7-3 7-7c0 4 3 7 7 7s7-3 7-7" fill="#E8B14E"/><rect x="12" y="31" width="40" height="25" fill="#FFF1DC" stroke="#E0C9A4" stroke-width="2"/><rect x="18" y="38" width="10" height="18" fill="#2E8B7A"/><rect x="34" y="38" width="12" height="10" fill="#BEE3DB"/></svg>
+          </div>
+          <span class="tag">店内BGMとして再生</span>
+          <small>お店・教室で音が流れる<br>(オリジナル楽曲)</small>
+        </div>
+        <div class="wave-arrow" aria-hidden="true">
+          <svg viewBox="0 0 64 40">
+            <path class="wave-arc" d="M14 8 q10 12 0 24"/>
+            <path class="wave-arc" d="M28 4 q14 16 0 32"/>
+            <path class="wave-arc" d="M42 0 q18 20 0 40"/>
+          </svg>
+        </div>
+        <div class="flow-node">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 64 64"><circle cx="32" cy="34" r="20" fill="#F8C9A8"/><path d="M14 32c0-12 8-20 18-20s18 8 18 20c0-4-6-12-18-12s-18 8-18 12z" fill="#6B4A35"/><circle cx="25" cy="34" r="2.2" fill="#4A3F35"/><circle cx="39" cy="34" r="2.2" fill="#4A3F35"/><path d="M27 42q5 4 10 0" stroke="#4A3F35" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M46 12l4-6M50 16l7-3M51 21l8 0" stroke="#F0795A" stroke-width="2.4" stroke-linecap="round"/><text x="50" y="10" font-size="11">♪</text></svg>
+          </div>
+          <span class="tag">記憶の引き出しに保存</span>
+          <small>お客さまの頭の中に残る<br>(繰り返しで強く記憶)</small>
+        </div>
+      </div>
+      <p class="flow-loop">この繰り返しが、自然な「思い出し」をつくります</p>
+    </div>
+  </div>
+</section>
+
+<!-- 02 想起率 -->
+<section class="section">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 class="sec-title"><span class="num-badge">02</span>想起率の違いは、こんなに大きい</h2>
+    </div>
+    <div class="recall-grid">
+      <div class="chart fade-up" id="chart">
+        <div class="bar-group">
+          <span class="bar-value">5%</span>
+          <div class="bar gray"></div>
+          <span class="bar-label">名前を含まない<br>サウンドロゴ</span>
+        </div>
+        <div class="bar-group">
+          <span class="bar-value" style="color:var(--coral-deep)">46%</span>
+          <div class="bar coral"></div>
+          <span class="bar-label">名前を含む<br>オリジナルサウンドロゴ</span>
+        </div>
+      </div>
+      <div class="recall-text fade-up">
+        <h3>「聞いたことある」と「あの店だ！」は別物。</h3>
+        <p>
+          米国の大規模調査では、ブランド名を含むオリジナルのサウンドロゴは、含まないものに比べて、実際に名前を思い出してもらえる割合が<strong>5%→46%、約9倍</strong>に跳ね上がることが分かっています。
+        </p>
+        <p>
+          お店や教室の名前がメロディと一緒に記憶されれば、「またあそこに行こう」「友だちに教えよう」の瞬間に、真っ先に思い出してもらえます。
+        </p>
+        <div class="recall-src">
+          出典：SoundOut Index 2025（米国・消費者7万件超の調査）。広告分野でも、独自の音を持つ広告は持たない広告の8.5倍ハイパフォーマンスになりやすいという調査結果があります（Ipsos, 2020）。
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 03 ターゲット -->
+<section class="section bg-white">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 class="sec-title"><span class="num-badge">03</span>こんなお店・教室にぴったり</h2>
+    </div>
+    <div class="target-grid">
+      <article class="target-card fade-up">
+        <h3><span class="t-icon">🎹</span>子ども教室</h3>
+        <small>音楽・ダンス・体操・学習塾など</small>
+        <img src="images/kids.jpg" alt="ピアノを弾く先生と歌う子どもたちのイラスト" loading="lazy">
+        <ul class="checks">
+          <li>子どもが覚えて家でも歌う＝ご家族にも届く</li>
+          <li>保護者や生徒の印象に残る</li>
+          <li>発表会・紹介動画にも活用できる</li>
+        </ul>
+      </article>
+      <article class="target-card fade-up">
+        <h3><span class="t-icon">🍽️</span>サロン・飲食店</h3>
+        <small>カフェ・美容室・整体院など</small>
+        <img src="images/salon.jpg" alt="カフェと美容室で心地よく過ごす人々のイラスト" loading="lazy">
+        <ul class="checks">
+          <li>お店の雰囲気やこだわりを演出</li>
+          <li>リール・ショート動画と店内の二重反復</li>
+          <li>リピーターの増加に貢献</li>
+        </ul>
+      </article>
+      <article class="target-card fade-up">
+        <h3><span class="t-icon">📅</span>定期イベント・施設</h3>
+        <small>マルシェ・勉強会・クリニックなど</small>
+        <img src="images/event.jpg" alt="テントが並ぶマルシェで人々が談笑するイラスト" loading="lazy">
+        <ul class="checks">
+          <li>毎回同じテーマで「あのイベント感」が育つ</li>
+          <li>来場者の記憶に残り、次回集客につながる</li>
+          <li>SNSでの拡散にも効果的</li>
+        </ul>
+      </article>
+    </div>
+    <p class="target-foot">♪ 業種や規模を問わず、あなたの想いを“音”にして、ファンを増やします。</p>
+  </div>
+</section>
+
+<!-- 制作の流れ -->
+<section class="section">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-eyebrow">＼ はじめての方も安心 ／</span><br>
+      <h2 class="sec-title">制作の流れ</h2>
+    </div>
+    <div class="steps">
+      <div class="step fade-up">
+        <div class="circle"><span class="n">01</span>🗣️</div>
+        <h3>ヒアリング</h3>
+        <p>お店や教室の想いやイメージを丁寧にお伺いします。</p>
+      </div>
+      <div class="step-arrow" aria-hidden="true">▶▶</div>
+      <div class="step fade-up">
+        <div class="circle"><span class="n">02</span>🎹</div>
+        <h3>制作</h3>
+        <p>ヒアリング内容をもとに、オリジナル楽曲を制作します。</p>
+      </div>
+      <div class="step-arrow" aria-hidden="true">▶▶</div>
+      <div class="step fade-up">
+        <div class="circle"><span class="n">03</span>📦</div>
+        <h3>納品</h3>
+        <p>楽曲データを納品。すぐにお店やSNSで使えます。</p>
+      </div>
+    </div>
+    <p class="step-note">修正は2回まで無料対応。納得いくまでサポートします！</p>
+  </div>
+</section>
+
+<!-- プロフィール -->
+<section class="section bg-white">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-eyebrow">想いをカタチにする</span><br>
+      <h2 class="sec-title">制作者プロフィール</h2>
+    </div>
+    <div class="profile-card fade-up">
+      <div class="profile-photo">
+        <img src="images/profile.jpg" alt="鍵盤と制作画面の前に座る柴田尚朋" loading="lazy">
+      </div>
+      <div class="profile-body">
+        <span class="role">作曲家・サウンドプロデューサー<span class="nowrap"> / Soulound 代表</span></span>
+        <h3>柴田 尚朋<span class="kana">しばた なおとも</span></h3>
+        <p>
+          店舗・教室・企業の“想い”を音にする作曲家。企業ソングや舞台・映像音楽の作編曲、録音ディレクションなど、ジャンルを横断して活動。丁寧なヒアリングで、その場所の“らしさ”が伝わる、記憶に残るメロディづくりを大切にしています。
+        </p>
+        <div class="profile-tags">
+          <div><span class="p-icon">🎼</span>作曲・編曲<br>幅広いジャンルに対応</div>
+          <div><span class="p-icon">🏪</span>店舗・教室など<br>幅広い業種に対応</div>
+          <div><span class="p-icon">🤝</span>丁寧なヒアリング<br>安心のサポート</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="wrap">
+    <div class="cta-card fade-up">
+      <span class="note-deco" style="top:14%;left:6%">♪</span>
+      <span class="note-deco" style="top:20%;right:8%">🎵</span>
+      <span class="cta-flag">まずはお気軽にご相談ください！</span>
+      <h2>あなたのお店・教室だけの<br><span class="accent nowrap">“らしさ”</span>を音にしませんか？</h2>
+      <a class="line-btn" href="https://lin.ee/9qzSVhh">
+        <span class="line-mark">LINE</span>
+        LINEで無料相談・資料を受け取る →
+      </a>
+      <div class="cta-points">
+        <span>相談・お見積り無料</span>
+        <span>無理な営業はしません</span>
+        <span>24時間いつでも受付中</span>
+      </div>
+      <p class="cta-gift">LINE登録特典：サービス資料＆楽曲サンプル集をプレゼント！</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="f-logo">Soulound</div>
+  <p>お店・教室の想いを、音にのせて。</p>
+</footer>
+
+<script>
+// スクロールで要素をふわっと表示 + グラフのバーを伸ばす
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.classList.add('in-view');
+      io.unobserve(e.target);
+    }
+  });
+},{threshold:.25});
+document.querySelectorAll('.fade-up, #chart').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
