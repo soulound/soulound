@@ -20,6 +20,7 @@
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html { background: var(--bg); color-scheme: dark; }
+  button { -webkit-tap-highlight-color: rgba(201,168,76,0.25); touch-action: manipulation; }
   body {
     background-color: var(--bg);
     color: var(--white);
@@ -160,14 +161,14 @@
 
   <!-- 案件タイプ -->
   <div class="typebar">
-    <button id="typeComposer" class="active" onclick="setType('composer')">作曲・ディレクション型</button>
-    <button id="typeArranger" onclick="setType('arranger')">編曲型</button>
+    <button type="button" id="typeComposer" class="active" data-type="composer">作曲・ディレクション型</button>
+    <button type="button" id="typeArranger" data-type="arranger">編曲型</button>
   </div>
 
   <!-- 検証ケース -->
   <div class="casebar composer-view" id="caseBar">
-    <button onclick="loadCase('seikimatsu')">劇中歌「世紀末」を入れる</button>
-    <button onclick="loadCase('zero')">リセット（0,0,0）</button>
+    <button type="button" data-case="seikimatsu">劇中歌「世紀末」を入れる</button>
+    <button type="button" data-case="zero">リセット（0,0,0）</button>
   </div>
 
   <!-- 作曲型ビュー -->
@@ -273,10 +274,13 @@
         </div>
         <input type="range" min="-1" max="1" step="0.05" value="0"
                id="rng-${group}-${ax.key}"
-               oninput="onSlide('${group}','${ax.key}', this.value)">
+               data-group="${group}" data-key="${ax.key}">
         <div class="axis-ends"><span>${ax.neg} −</span><span>＋ ${ax.pos}</span></div>
       `;
       c.appendChild(wrap);
+    });
+    c.querySelectorAll('input[type=range]').forEach(r => {
+      r.addEventListener('input', e => onSlide(e.target.dataset.group, e.target.dataset.key, e.target.value));
     });
   }
 
@@ -410,6 +414,14 @@
   buildAxes('truthAxes', 'truth');
   syncSliders();
   render();
+
+  // ボタン配線（インラインhandlerは一部モバイルで効かないため addEventListener で）
+  document.querySelectorAll('[data-case]').forEach(b => {
+    b.addEventListener('click', () => loadCase(b.dataset.case));
+  });
+  document.querySelectorAll('[data-type]').forEach(b => {
+    b.addEventListener('click', () => setType(b.dataset.type));
+  });
 </script>
 </body>
 </html>
